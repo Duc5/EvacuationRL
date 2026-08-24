@@ -4,7 +4,7 @@ from evac_env import TwoExitEvacEnv
 env = TwoExitEvacEnv()
 
 
-q_table = np.load("q_table.npy")
+q_table = np.load("q_table0.99.npy")
 epsilon = 0.1
 alpha = 0.1
 gamma = 0.09

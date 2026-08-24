@@ -3,15 +3,15 @@ from evac_env import TwoExitEvacEnv
 import os
 env = TwoExitEvacEnv()
 
-if os.path.exists("q_table.npy"):
-    q_table = np.load("q_table.npy")
+if os.path.exists("q_table0.99.npy"):
+    q_table = np.load("q_table0.99.npy")
     print("Loaded existing Q table")
 else:
     q_table = np.zeros((21,21,21,2))
     print("Created new Q table")
 epsilon = 0.1
 alpha = 0.1
-gamma = 0.09
+gamma = 0.99
 episode_rewards =[]
 episode_steps = []
 for i in range(100000):
@@ -40,4 +40,4 @@ for i in range(100000):
     episode_rewards.append(total_reward)
     episode_steps.append(env.current_step)
     print(f"Ep {i}: average reward {np.mean(episode_rewards)} average steps {np.mean(episode_steps)}")
-np.save("q_table.npy",q_table)
+np.save("q_table0.99.npy",q_table)
