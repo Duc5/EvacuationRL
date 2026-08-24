@@ -3,12 +3,16 @@ from gymnasium import spaces
 import numpy as np
 
 class TwoExitEvacEnv(gym.Env):
-    def __init__(self):
+    def __init__(self,
+                 initial_population=20,
+                 pLeft=0.5,
+                 pRight=0.5,
+                 maxStep=100):
         super().__init__()
-        self.initial_population = 20
-        self.pLeft = 0.5
-        self.pRight = 0.5
-        self.maxStep = 100
+        self.initial_population = initial_population
+        self.pLeft = pLeft
+        self.pRight = pRight
+        self.maxStep = maxStep
         self.action_space= spaces.Discrete(2)
         self.observation_space= spaces.MultiDiscrete([self.initial_population+1]*3)
     def reset(self, seed=None,options=None):

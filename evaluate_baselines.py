@@ -1,6 +1,6 @@
 from evac_env import TwoExitEvacEnv
 import numpy as np
-env = TwoExitEvacEnv()
+env = TwoExitEvacEnv(pLeft=0.7,pRight=0.3)
 
 
 episodeRewards= []
@@ -11,7 +11,10 @@ for i in range(100000):
     truncated = False
     totalReward = 0
     while (terminated == False and truncated == False):
-        action = env.current_step %2
+        if (obs[1]+1)/env.pLeft <= (obs[2]+1)/env.pRight:
+            action = 0
+        else:
+            action = 1
         
         obs,reward,terminated,truncated,info = env.step(action)
         totalReward += reward

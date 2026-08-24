@@ -1,10 +1,10 @@
 import numpy as np
 from evac_env import TwoExitEvacEnv
 import os
-env = TwoExitEvacEnv()
+env = TwoExitEvacEnv(pLeft=0.7,pRight=0.3)
 
-if os.path.exists("q_table0.99.npy"):
-    q_table = np.load("q_table0.99.npy")
+if os.path.exists("q_tableV0.1.npy"):
+    q_table = np.load("q_tableV0.1.npy")
     print("Loaded existing Q table")
 else:
     q_table = np.zeros((21,21,21,2))
@@ -40,4 +40,4 @@ for i in range(100000):
     episode_rewards.append(total_reward)
     episode_steps.append(env.current_step)
     print(f"Ep {i}: average reward {np.mean(episode_rewards)} average steps {np.mean(episode_steps)}")
-np.save("q_table0.99.npy",q_table)
+np.save("q_tableV0.1.npy",q_table)
