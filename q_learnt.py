@@ -1,10 +1,10 @@
 import numpy as np
 from evac_env import TwoExitEvacEnv
 
-env = TwoExitEvacEnv(pLeft=0.7,pRight=0.3)
+env = TwoExitEvacEnv()
 
 
-q_table = np.load("q_tableV0.1.npy")
+q_table = np.load("q_tableV0.2seed2.npy")
 epsilon = 0.1
 alpha = 0.1
 gamma = 0.09
