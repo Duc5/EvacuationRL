@@ -1,16 +1,16 @@
 import numpy as np
-from evac_env import TwoExitEvacEnv
+from grid_evac_env import GridEvacEnv
 
-env = TwoExitEvacEnv()
+env = GridEvacEnv()
 
 
-q_table = np.load("q_tableV0.2seed3.npy")
+q_table = np.load("q_tableV0.3.npy")
 epsilon = 0.1
 alpha = 0.1
 gamma = 0.09
 episode_rewards =[]
 episode_steps = []
-for i in range(100000):
+for i in range(10000):
     state,info = env.reset()
     terminated = False
     truncated = False

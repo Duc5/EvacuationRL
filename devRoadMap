@@ -1,0 +1,169 @@
+URSS RL EVACUATION ROADMAP
+
+v0.0 — Basic two-exit queue model ✓ DONE
+│
+├── State: (input, left queue, right queue)
+├── Actions: route LEFT / RIGHT
+├── Fixed stochastic exit probabilities
+├── Reward based on people remaining unevacuated
+├── Gymnasium custom environment
+├── Tabular Q-learning
+└── Baselines:
+    ├── Random
+    ├── Always left/right
+    └── Alternating
+
+
+v0.1 — Asymmetric exits ✓ DONE
+│
+├── Different exit probabilities
+│   e.g. pLeft = 0.7, pRight = 0.3
+├── Added stronger baselines
+│   ├── Capacity-weighted random
+│   └── Expected-time heuristic
+├── Q-learning vs heuristic comparison
+└── Investigated learned policy/Q-values
+    └── Found state-dependent behaviour based on
+        remaining input population
+
+
+v0.2 — Congestion-dependent throughput ← CURRENT
+│
+├── Exit probability depends on corridor population
+│
+│   p(q):
+│     0.5   q ≤ 2
+│     0.3   3–5
+│     0.2   6–9
+│     0.1   ≥10
+│
+├── Congestion can create feedback loops
+├── Static expected-time heuristic
+├── Dynamic expected-time heuristic
+├── Tabular Q-learning
+└── Compare learned policy against heuristics
+
+
+────────────────────────────────────
+
+
+v0.3 — First spatial/grid environment ← NEXT
+│
+├── 2D grid representation
+├── Walls
+├── Floor cells
+├── Exit cells
+├── Initially ONE pedestrian
+├── State initially just pedestrian position:
+│       (row, column)
+├── Actions:
+│       UP / DOWN / LEFT / RIGHT
+├── One-cell movement per timestep
+├── Invalid movement blocked by walls
+├── Reward: initially -1 per timestep
+└── Terminate when pedestrian reaches exit
+
+Purpose:
+Learn/test the spatial simulation mechanics before
+adding crowd behaviour and evacuation guidance.
+
+
+v0.4 — Multiple pedestrians
+│
+├── Several pedestrians on grid
+├── One pedestrian per cell initially
+├── Collision / occupied-cell rules
+├── Multiple pedestrian movement each timestep
+├── Pedestrian locations become dynamic environment state
+└── Evacuation ends when all pedestrians leave
+
+
+v0.5 — Guidance-based control
+│
+├── Stop treating RL as directly moving pedestrians
+├── Pedestrians become part of environment
+├── RL agent becomes evacuation guidance system
+├── Guidance decisions at junctions / selected cells
+├── Pedestrians follow guidance automatically
+└── Compare guidance strategies
+
+
+v0.6 — Building structure
+│
+├── Multiple corridors
+├── Multiple exits
+├── Walls / rooms
+├── Junctions
+├── Different corridor lengths
+├── Bottlenecks
+└── Travel time now matters
+
+
+v0.7 — More realistic scenarios
+│
+├── Random initial pedestrian distributions
+├── Different crowd sizes
+├── Different exit capacities
+├── Blocked/unavailable exits
+├── Random environmental configurations
+└── Stronger baseline policies
+    ├── Shortest path
+    ├── Shortest queue
+    ├── Static routing
+    └── Capacity-aware routing
+
+
+────────────────────────────────────
+REALISTIC SIMULATION PHASE
+────────────────────────────────────
+
+
+v1.0 — JuPedSim integration
+│
+├── Continuous 2D pedestrian movement
+├── Real pedestrian interaction model
+├── Geometry / walls / exits
+├── Bottlenecks
+└── Replace toy grid movement with pedestrian dynamics
+
+
+v1.1 — Gymnasium wrapper around JuPedSim
+│
+├── observation
+├── action
+├── reward
+├── step()
+├── reset()
+└── Keep RL interface independent of simulator
+
+
+v1.2 — Deep RL
+│
+├── Stable-Baselines3
+├── DQN where appropriate
+├── PPO
+└── Move beyond tabular Q-learning when state space
+    becomes too large
+
+
+v1.3 — PedPy evaluation
+│
+├── Evacuation time
+├── Pedestrian travel time
+├── Density
+├── Flow
+├── Speed
+├── Congestion
+└── Bottleneck behaviour
+
+
+v1.4 — Main experiments
+│
+├── RL vs heuristic/static baselines
+├── Different building layouts
+├── Different crowd distributions
+├── Different hazards / blocked routes
+├── Generalisation tests
+├── Multiple random seeds
+├── Statistical comparison
+└── Analyse when RL actually provides an advantage

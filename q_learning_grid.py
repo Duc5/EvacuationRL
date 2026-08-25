@@ -1,13 +1,13 @@
 import numpy as np
-from evac_env import TwoExitEvacEnv
+from grid_evac_env import GridEvacEnv
 import os
-env = TwoExitEvacEnv()
+env = GridEvacEnv()
 
-if os.path.exists("q_tableV0.2seed3.npy"):
-    q_table = np.load("q_tableV0.2seed3.npy")
+if os.path.exists("q_tableV0.3.npy"):
+    q_table = np.load("q_tableV0.3.npy")
     print("Loaded existing Q table")
 else:
-    q_table = np.zeros((21,21,21,2))
+    q_table = np.zeros((7,7,4))
     print("Created new Q table")
 epsilon = 0.1
 alpha = 0.1
@@ -40,4 +40,4 @@ for i in range(100000):
     episode_rewards.append(total_reward)
     episode_steps.append(env.current_step)
     print(f"Ep {i}: average reward {np.mean(episode_rewards)} average steps {np.mean(episode_steps)}")
-np.save("q_tableV0.2seed3.npy",q_table)
+np.save("q_tableV0.3.npy",q_table)
