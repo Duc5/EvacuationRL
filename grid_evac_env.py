@@ -65,25 +65,26 @@ class GridEvacEnv(gym.Env):
 
     def choose_pedestrian_move(self,position):
         row,col = position
-        chosen_position = position
-
+        candidates=[position]
         #  Check left neighbor
-        if (self.grid[row,col-1] != 1) and (row,col-1) not in self.pedestrian_positions:
-            if self.distance_map[row,col-1] < self.distance_map[chosen_position]:
-                chosen_position = (row,col-1)
+        if (self.grid[row,col-1] != 1) and (row,col-1) not in self.pedestrian_positions and (self.distance_map[row,col-1]<self.distance_map[position]):
+            candidates.append((row,col-1))
         # check right neighbor
-        if (self.grid[row,col+1] != 1) and (row,col+1) not in self.pedestrian_positions:
-            if self.distance_map[row,col+1] < self.distance_map[chosen_position]:
-                chosen_position = (row,col+1)
+        if (self.grid[row,col+1] != 1) and (row,col+1) not in self.pedestrian_positions and (self.distance_map[row,col+1]<self.distance_map[position]):
+            candidates.append((row,col+1))
         # check up neighbor
-        if (self.grid[row-1,col] != 1) and (row-1,col) not in self.pedestrian_positions:
-            if self.distance_map[row-1,col] < self.distance_map[chosen_position]:
-                chosen_position = (row-1,col)
+        if (self.grid[row-1,col] != 1) and (row-1,col) not in self.pedestrian_positions and (self.distance_map[row-1,col]<self.distance_map[position]):
+            candidates.append((row-1,col))
         # check down neighbor
-        if (self.grid[row+1,col] != 1) and (row+1,col) not in self.pedestrian_positions:
-            if self.distance_map[row+1,col] < self.distance_map[chosen_position]:
-                chosen_position = (row+1,col)
-        return chosen_position
+        if (self.grid[row+1,col] != 1) and (row+1,col) not in self.pedestrian_positions and (self.distance_map[row+1,col]<self.distance_map[position]):
+            candidates.append((row+1,col))
+
+
+        min_distance = min(self.distance_map[pos] for pos in candidates)
+        best_candidates = [pos for pos in candidates if self.distance_map[pos] == min_distance]
+        chosen_index = self.np_random.integers(len(best_candidates))
+        return best_candidates[chosen_index]    
+
         
 
 
