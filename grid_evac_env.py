@@ -4,7 +4,7 @@ import numpy as np
 from collections import deque
 
 class GridEvacEnv(gym.Env):
-    def __init__(self):
+    def __init__(self,start_positions=None,max_step=1000):
         super().__init__()
         self.grid = np.array([
                 [1,1,1,1,1,1,1],
@@ -15,15 +15,22 @@ class GridEvacEnv(gym.Env):
                 [1,0,0,0,0,2,1],
                 [1,1,1,1,1,1,1]
             ])
-        self.start_positions = [
-            (1,1),
-            (1,2),
-            (1,3)
-        ]
-        
-        self.action_space= spaces.Discrete(4)
-        self.max_step = 1000
+
+        if start_positions is None:
+            self.start_positions = [   
+                (1,1), 
+                (1,2), 
+                (1,3)  
+            ]  
+        else:  
+            self.start_positions = start_positions.copy() 
         rows, cols = self.grid.shape
+        assert len(start_positions) == len(set(start_positions)) , "pedestrians cannot start in the same cell"
+        assert all(0<=row < rows and 0<= col <cols for row,col in start_positions), "starting positions must be inside grid"
+        assert not( 1 in [self.grid[pos] for pos in start_positions]), "Pedestrians cannot start on walls"
+
+        self.action_space= spaces.Discrete(4)
+        self.max_step = max_step
         self.observation_space= spaces.MultiDiscrete([rows,cols])
         self.build_distance_map()
 

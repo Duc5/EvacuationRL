@@ -1,6 +1,20 @@
 from grid_evac_env import GridEvacEnv
 import numpy as np
-env = GridEvacEnv()
+
+starts_3 = [
+    (1,1), (1,2), (1,3)
+]
+
+starts_4 = [
+    (1,1), (1,2), (1,3), (1,4)
+]
+
+starts_5 = [
+    (1,1), (1,2), (1,3), (1,4), (1,5)
+]
+
+
+env = GridEvacEnv(start_positions=starts_5)
 
 
 
@@ -26,5 +40,11 @@ for i in range(100000):
     episodeRewards.append(totalReward)
     episodeSteps.append(env.current_step)
     print(i)
-        
-print(f"BFS Average reward: {np.mean(episodeRewards)}, Average steps: {np.mean(episodeSteps)}, No of 8,9,10 steps episodes {episodeSteps.count(8)} {episodeSteps.count(9)} {episodeSteps.count(10)}")
+
+stepNumbers= set(episodeSteps)
+stepDict ={}
+for i in stepNumbers:
+    stepDict[f"{i}"] = f"{episodeSteps.count(i)/len(episodeSteps)}"
+print(f"""BFS Crowd 5, Average steps: {np.mean(episodeSteps)}, 
+        {stepDict}
+        """)
