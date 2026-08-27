@@ -1,20 +1,24 @@
 import numpy as np
 from grid_evac_env import GridEvacEnv
 import os
-env = GridEvacEnv()
 
-if os.path.exists("q_tableV0.3.npy"):
-    q_table = np.load("q_tableV0.3.npy")
+starts_5 = [
+    (1,1), (1,2), (1,3), (1,4), (1,5)
+]
+env = GridEvacEnv(starts_5)
+
+if os.path.exists("q_tableV0.4.3seed3.npy"):
+    q_table = np.load("q_tableV0.4.3seed3.npy")
     print("Loaded existing Q table")
 else:
-    q_table = np.zeros((7,7,4))
+    q_table = np.zeros((6,6,6,2))
     print("Created new Q table")
 epsilon = 0.1
 alpha = 0.1
 gamma = 0.99
 episode_rewards =[]
 episode_steps = []
-for i in range(100000):
+for i in range(50000):
     state,info = env.reset()
     terminated = False
     truncated = False
@@ -40,4 +44,4 @@ for i in range(100000):
     episode_rewards.append(total_reward)
     episode_steps.append(env.current_step)
     print(f"Ep {i}: average reward {np.mean(episode_rewards)} average steps {np.mean(episode_steps)}")
-np.save("q_tableV0.3.npy",q_table)
+np.save("q_tableV0.4.3seed3.npy",q_table)

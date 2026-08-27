@@ -31,12 +31,12 @@ class GridEvacEnv(gym.Env):
         assert all(0<=row < rows and 0<= col <cols for row,col in self.start_positions), "starting positions must be inside grid"
         assert not( 1 in [self.grid[pos] for pos in self.start_positions]), "Pedestrians cannot start on walls"
 
-        self.action_space= spaces.Discrete(4)
+        self.action_space= spaces.Discrete(2)
         self.max_step = max_step
         self.junction = (4,4)
         self.left_exit = (7,0)
         self.right_exit = (7,8)
-        self.observation_space= spaces.MultiDiscrete([rows,cols])
+        self.observation_space= spaces.MultiDiscrete([len(self.start_positions)+1]*3)
         self.distance_map_junction = self.build_distance_map((4,4))
         self.distance_map_left_exit = self.build_distance_map(self.left_exit)
         self.distance_map_right_exit = self.build_distance_map(self.right_exit)
@@ -105,10 +105,11 @@ class GridEvacEnv(gym.Env):
         self.guidance_states = [None for _ in range(len(self.pedestrian_positions))]
 
         self.current_step = 0
-        obs = np.array(self.pedestrian_positions)
+        obs= np.array([self.guidance_states.count(None),self.guidance_states.count(0),self.guidance_states.count(1)])
         info = {}
         return (obs,info)
     def step(self,action):
+        assert self.action_space.contains(action)
         terminated = False
         truncated =  False
         order = list(range(len(self.pedestrian_positions)))
@@ -128,7 +129,7 @@ class GridEvacEnv(gym.Env):
 
             new_pos = self.choose_pedestrian_move(self.pedestrian_positions[i],distance_map)
             if new_pos == self.junction and self.guidance_states[i] is None:
-                self.guidance_states[i] = self.np_random.integers(2)
+                self.guidance_states[i] = action
 
             if self.grid[new_pos] == 2:
                 self.pedestrian_positions[i] = None
@@ -146,10 +147,9 @@ class GridEvacEnv(gym.Env):
         terminated = len(self.pedestrian_positions) ==0
         truncated = self.current_step >= self.max_step
         reward = -1
-        obs= self.pedestrian_positions
+
+        obs= np.array([self.guidance_states.count(None),self.guidance_states.count(0),self.guidance_states.count(1)])
         info = {"escaped_left": escaped_left,"escaped_right":escaped_right }
         return obs,reward,terminated,truncated,info
         
         
-env = GridEvacEnv()
-print(env.distance_map_right_exit)

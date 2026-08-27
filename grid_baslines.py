@@ -33,7 +33,14 @@ for i in range(10000):
     totalReward = 0
     while (terminated == False and truncated == False):
 
-        obs,reward,terminated,truncated,info = env.step(0)
+        none,left,right = obs
+        if left <right:
+            action = 0
+        elif right <left:
+            action = 1
+        else:
+            action = np.random.randint(0,2)
+        obs,reward,terminated,truncated,info = env.step(action)
         totalReward += reward
         print(
             "step:", env.current_step,
@@ -54,4 +61,4 @@ for i in stepNumbers:
 print(f"""BFS Crowd 5, Average steps: {np.mean(episodeSteps)}, 
         {stepDict}
         Escaped left: {escapedLeft}, Escaped right: {escapedRight}
-        """)
+        """) 

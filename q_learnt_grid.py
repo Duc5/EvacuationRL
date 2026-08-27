@@ -4,7 +4,7 @@ from grid_evac_env import GridEvacEnv
 env = GridEvacEnv()
 
 
-q_table = np.load("q_tableV0.3.npy")
+q_table = np.load("q_tableV0.4.3seed3.npy")
 epsilon = 0.1
 alpha = 0.1
 gamma = 0.09
