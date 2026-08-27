@@ -24,7 +24,9 @@ truncated = False
 totalReward = 0
 episodeRewards= []
 episodeSteps = []
-for i in range(100000):
+escapedLeft = 0
+escapedRight = 0
+for i in range(10000):
     obs,info = env.reset()
     terminated= False
     truncated = False
@@ -35,11 +37,15 @@ for i in range(100000):
         totalReward += reward
         print(
             "step:", env.current_step,
-            "positions:", env.pedestrian_positions
+            "positions:", env.pedestrian_positions,
+            "guidance:" , env.guidance_states
         )
+        escapedLeft += info["escaped_left"]
+        escapedRight += info["escaped_right"]
     episodeRewards.append(totalReward)
     episodeSteps.append(env.current_step)
-    print(i)
+
+    
 
 stepNumbers= set(episodeSteps)
 stepDict ={}
@@ -47,4 +53,5 @@ for i in stepNumbers:
     stepDict[f"{i}"] = f"{episodeSteps.count(i)/len(episodeSteps)}"
 print(f"""BFS Crowd 5, Average steps: {np.mean(episodeSteps)}, 
         {stepDict}
+        Escaped left: {escapedLeft}, Escaped right: {escapedRight}
         """)
