@@ -1,4 +1,4 @@
-from grid_evac_env import GridEvacEnv
+from old_grid_evac_env import OldGridEvacEnv
 import numpy as np
 
 starts_3 = [
@@ -14,7 +14,7 @@ starts_5 = [
 ]
 
 
-env = GridEvacEnv(start_positions=starts_5)
+env = OldGridEvacEnv(start_positions=starts_5)
 
 
 
@@ -33,13 +33,7 @@ for i in range(10000):
     totalReward = 0
     while (terminated == False and truncated == False):
 
-        none,left,right = obs
-        if left <right:
-            action = 0
-        elif right <left:
-            action = 1
-        else:
-            action = np.random.randint(0,2)
+        action = env.current_step % 2
         obs,reward,terminated,truncated,info = env.step(action)
         totalReward += reward
         print(
@@ -49,6 +43,7 @@ for i in range(10000):
         )
         escapedLeft += info["escaped_left"]
         escapedRight += info["escaped_right"]
+        print(obs, sum(obs), len(env.pedestrian_positions))
     episodeRewards.append(totalReward)
     episodeSteps.append(env.current_step)
 

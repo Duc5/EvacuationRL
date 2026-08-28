@@ -3,7 +3,7 @@ from gymnasium import spaces
 import numpy as np
 from collections import deque
 
-class GridEvacEnv(gym.Env):
+class OldGridEvacEnv(gym.Env):
     def __init__(self,start_positions=None,max_step=1000):
         super().__init__()
         self.grid = np.array([
@@ -33,60 +33,15 @@ class GridEvacEnv(gym.Env):
 
         self.action_space= spaces.Discrete(2)
         self.max_step = max_step
-        self.junction = (5,4)
+        self.junction = (4,4)
         self.left_exit = (7,0)
         self.right_exit = (7,8)
-
-
-        # Regions 
-        self.incoming = {
-            (1,1), (1,2), (1,3), (1,4), (1,5), (1,6), (1,7),
-            (2,1),                   (2,4),                   (2,7),
-            (3,1), (3,2), (3,3), (3,4), (3,5), (3,6), (3,7),
-            (4,4)
-        }       
-
-        self.junction_region = {
-            (5,4)
-        }       
-
-        self.left_near_junction = {
-            (5,2), (5,3),
-                   (6,3)
-        }       
-
-        self.left_near_exit = {
-            (5,1),
-            (6,1),
-            (7,1), (7,2), (7,3)
-        }       
-
-        self.right_near_junction = {
-            (5,5), (5,6),
-            (6,5)
-        }       
-
-        self.right_near_exit = {
-                                    (5,7),
-                                    (6,7),
-            (7,5), (7,6), (7,7)
-        }
-        #----- 
-
-        self.observation_space= spaces.MultiDiscrete([len(self.start_positions)+1]*6)
-        self.distance_map_junction = self.build_distance_map(self.junction)
+        self.observation_space= spaces.MultiDiscrete([len(self.start_positions)+1]*3)
+        self.distance_map_junction = self.build_distance_map((4,4))
         self.distance_map_left_exit = self.build_distance_map(self.left_exit)
         self.distance_map_right_exit = self.build_distance_map(self.right_exit)
 
-    def get_observation(self):
 
-        incoming = sum(pos in self.incoming for pos in self.pedestrian_positions)
-        junction = sum(pos in self.junction_region for pos in self.pedestrian_positions)
-        left_near_junc = sum(pos in self.left_near_junction for pos in self.pedestrian_positions)
-        left_near_exit = sum(pos in self.left_near_exit for pos in self.pedestrian_positions)
-        right_near_junc = sum(pos in self.right_near_junction for pos in self.pedestrian_positions)
-        right_near_exit = sum(pos in self.right_near_exit for pos in self.pedestrian_positions)
-        return np.array([incoming,junction,left_near_junc,left_near_exit,right_near_junc,right_near_exit])        
 
     def build_distance_map(self,exitPos):
         rows, cols = self.grid.shape
@@ -150,7 +105,7 @@ class GridEvacEnv(gym.Env):
         self.guidance_states = [None for _ in range(len(self.pedestrian_positions))]
 
         self.current_step = 0
-        obs = self.get_observation()
+        obs= np.array([self.guidance_states.count(None),self.guidance_states.count(0),self.guidance_states.count(1)])
         info = {}
         return (obs,info)
     def step(self,action):
@@ -193,7 +148,7 @@ class GridEvacEnv(gym.Env):
         truncated = self.current_step >= self.max_step
         reward = -1
 
-        obs= self.get_observation()
+        obs= np.array([self.guidance_states.count(None),self.guidance_states.count(0),self.guidance_states.count(1)])
         info = {"escaped_left": escaped_left,"escaped_right":escaped_right }
         return obs,reward,terminated,truncated,info
         

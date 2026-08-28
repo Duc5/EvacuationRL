@@ -1,10 +1,13 @@
 import numpy as np
-from grid_evac_env import GridEvacEnv
+from old_grid_evac_env import OldGridEvacEnv
 
-env = GridEvacEnv()
+starts_5 = [
+    (1,1), (1,2), (1,3), (1,4), (1,5)
+]
+env = OldGridEvacEnv(starts_5)
 
 
-q_table = np.load("q_tableV0.4.3seed3.npy")
+q_table = np.load("q_tableV0.4.3.npy")
 epsilon = 0.1
 alpha = 0.1
 gamma = 0.09
