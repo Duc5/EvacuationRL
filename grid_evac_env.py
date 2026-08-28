@@ -7,15 +7,17 @@ class GridEvacEnv(gym.Env):
     def __init__(self,start_positions=None,max_step=1000):
         super().__init__()
         self.grid = np.array([
-            [1,1,1,1,1,1,1,1,1],
-            [1,0,0,0,0,0,0,0,1],
-            [1,0,1,1,0,1,1,0,1],
-            [1,0,0,0,0,0,0,0,1],
-            [1,1,1,1,0,1,1,1,1],
-            [1,0,0,0,0,0,0,0,1],
-            [1,0,1,0,1,0,1,0,1],
-            [2,0,0,0,1,0,0,0,2],
-            [1,1,1,1,1,1,1,1,1]
+            [1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,0,0,0,0,0,1],
+            [1,0,0,0,0,0,0,0,0,0,1],
+            [1,0,0,0,0,0,0,0,0,0,1],
+            [1,0,0,0,0,0,0,0,0,0,1],
+            [1,0,0,0,0,0,0,0,0,0,1],
+            [1,0,0,0,1,1,1,0,0,0,1],
+            [1,0,0,0,1,1,1,0,0,0,1],
+            [1,0,0,0,1,1,1,0,0,0,1],
+            [2,0,0,0,1,1,1,0,0,0,2],
+            [1,1,1,1,1,1,1,1,1,1,1]
         ])
 
         if start_positions is None:
@@ -33,67 +35,27 @@ class GridEvacEnv(gym.Env):
 
         self.action_space= spaces.Discrete(2)
         self.max_step = max_step
-        self.junction = (5,4)
-        self.left_exit = (7,0)
-        self.right_exit = (7,8)
 
-
-        # Regions 
-        self.incoming = {
-            (1,1), (1,2), (1,3), (1,4), (1,5), (1,6), (1,7),
-            (2,1),                   (2,4),                   (2,7),
-            (3,1), (3,2), (3,3), (3,4), (3,5), (3,6), (3,7),
-            (4,4)
-        }       
-
-        self.junction_region = {
-            (5,4)
-        }       
-
-        self.left_near_junction = {
-            (5,2), (5,3),
-                   (6,3)
-        }       
-
-        self.left_near_exit = {
-            (5,1),
-            (6,1),
-            (7,1), (7,2), (7,3)
-        }       
-
-        self.right_near_junction = {
-            (5,5), (5,6),
-            (6,5)
-        }       
-
-        self.right_near_exit = {
-                                    (5,7),
-                                    (6,7),
-            (7,5), (7,6), (7,7)
+        self.guidance_zone = {
+           (4,1), (4,2), (4,3), (4,4), (4,5),
+           (4,6), (4,7), (4,8), (4,9)
         }
-        #----- 
 
-        self.observation_space= spaces.MultiDiscrete([len(self.start_positions)+1]*6)
-        self.distance_map_junction = self.build_distance_map(self.junction)
+
+        self.left_exit = [(9,0)]
+        self.right_exit = [(9,10)]
+        self.observation_space= spaces.MultiDiscrete([len(self.start_positions)+1]*3)
+        self.distance_map_guidance_zone = self.build_distance_map(self.guidance_zone)
         self.distance_map_left_exit = self.build_distance_map(self.left_exit)
         self.distance_map_right_exit = self.build_distance_map(self.right_exit)
 
-    def get_observation(self):
 
-        incoming = sum(pos in self.incoming for pos in self.pedestrian_positions)
-        junction = sum(pos in self.junction_region for pos in self.pedestrian_positions)
-        left_near_junc = sum(pos in self.left_near_junction for pos in self.pedestrian_positions)
-        left_near_exit = sum(pos in self.left_near_exit for pos in self.pedestrian_positions)
-        right_near_junc = sum(pos in self.right_near_junction for pos in self.pedestrian_positions)
-        right_near_exit = sum(pos in self.right_near_exit for pos in self.pedestrian_positions)
-        return np.array([incoming,junction,left_near_junc,left_near_exit,right_near_junc,right_near_exit])        
 
-    def build_distance_map(self,exitPos):
+    def build_distance_map(self,targetList):
         rows, cols = self.grid.shape
         distance_map = np.full((rows,cols),np.inf)
-        exitRow, exitCol = exitPos
-        build_queue = deque([(exitRow,exitCol,0)])
-        distance_map[exitRow,exitCol] = 0
+        build_queue = deque([(*cell,0) for cell in targetList])
+        for cell in targetList: distance_map[cell] = 0 
         while len(build_queue) != 0:
             row,col,dist = build_queue.pop()
 
@@ -122,35 +84,66 @@ class GridEvacEnv(gym.Env):
         row,col = position
         candidates=[position]
         #  Check left neighbor
-        if (self.grid[row,col-1] != 1) and (row,col-1) not in self.pedestrian_positions and (distance_map[row,col-1]<distance_map[position]):
+        if (self.grid[row,col-1] != 1) and (row,col-1) not in self.pedestrian_positions:
             candidates.append((row,col-1))
         # check right neighbor
-        if (self.grid[row,col+1] != 1) and (row,col+1) not in self.pedestrian_positions and (distance_map[row,col+1]<distance_map[position]):
+        if (self.grid[row,col+1] != 1) and (row,col+1) not in self.pedestrian_positions:
             candidates.append((row,col+1))
         # check up neighbor
-        if (self.grid[row-1,col] != 1) and (row-1,col) not in self.pedestrian_positions and (distance_map[row-1,col]<distance_map[position]):
+        if (self.grid[row-1,col] != 1) and (row-1,col) not in self.pedestrian_positions:
             candidates.append((row-1,col))
         # check down neighbor
-        if (self.grid[row+1,col] != 1) and (row+1,col) not in self.pedestrian_positions and (distance_map[row+1,col]<distance_map[position]):
+        if (self.grid[row+1,col] != 1) and (row+1,col) not in self.pedestrian_positions:
             candidates.append((row+1,col))
-
+        # Every neighbor is a candidate as long as it is not a wall and not occupied by another pedestrian
 
         min_distance = min(distance_map[pos] for pos in candidates)
         best_candidates = [pos for pos in candidates if distance_map[pos] == min_distance]
+        if position in best_candidates:
+            return position
         chosen_index = self.np_random.integers(len(best_candidates))
-        return best_candidates[chosen_index]    
-
+        return best_candidates[chosen_index]
+    
+    def choose_yield_move(self,position,distance_map):
+        row,col = position
+        candidates=[]
+        #  Check left neighbor
+        if (self.grid[row,col-1] != 1) and (row,col-1) not in self.pedestrian_positions:
+            candidates.append((row,col-1))
+        # check right neighbor
+        if (self.grid[row,col+1] != 1) and (row,col+1) not in self.pedestrian_positions:
+            candidates.append((row,col+1))
+        # check up neighbor
+        if (self.grid[row-1,col] != 1) and (row-1,col) not in self.pedestrian_positions:
+            candidates.append((row-1,col))
+        # check down neighbor
+        if (self.grid[row+1,col] != 1) and (row+1,col) not in self.pedestrian_positions:
+            candidates.append((row+1,col))
+        # Every neighbor is a candidate as long as it is not a wall and not occupied by another pedestrian
+        if len(candidates) == 0:
+            return position
+        min_distance = min(distance_map[pos] for pos in candidates)
+        best_candidates = [pos for pos in candidates if distance_map[pos] == min_distance]
+        chosen_index = self.np_random.integers(len(best_candidates))
+        return best_candidates[chosen_index]
         
-
-
+    def spatial_guidance(self,position):
+        row,col = position
+        middle = self.grid.shape[1]//2
+        if col < middle:
+            return 0
+        elif col > middle:
+            return 1
+        else:
+            return self.np_random.integers(2)
     
     def reset(self, seed=None,options=None):
         super().reset(seed=seed)
         self.pedestrian_positions = self.start_positions.copy()
         self.guidance_states = [None for _ in range(len(self.pedestrian_positions))]
-
+        self.stuck_counts = [0 for _ in range(len(self.pedestrian_positions))]
         self.current_step = 0
-        obs = self.get_observation()
+        obs= np.array([self.guidance_states.count(None),self.guidance_states.count(0),self.guidance_states.count(1)])
         info = {}
         return (obs,info)
     def step(self,action):
@@ -166,16 +159,26 @@ class GridEvacEnv(gym.Env):
                 continue
             guide_state = self.guidance_states[i]
             if guide_state == None:
-                distance_map = self.distance_map_junction
+                distance_map = self.distance_map_guidance_zone
             elif guide_state == 0:
                 distance_map = self.distance_map_left_exit
             else:
                 distance_map = self.distance_map_right_exit
 
+            old_pos = self.pedestrian_positions[i]
             new_pos = self.choose_pedestrian_move(self.pedestrian_positions[i],distance_map)
-            if new_pos == self.junction and self.guidance_states[i] is None:
-                self.guidance_states[i] = action
-
+            if old_pos == new_pos:
+                self.stuck_counts[i] +=1
+                if self.stuck_counts[i] >= 3:
+                    # if pedestrian is stuck for 3 steps, do a diff step
+                    new_pos = self.choose_yield_move(self.pedestrian_positions[i],distance_map)
+                    if new_pos != old_pos:
+                        self.stuck_counts[i] = 0
+            else:
+                self.stuck_counts[i] = 0
+            # in guide zone and not yet guided so policy guides them
+            if new_pos in self.guidance_zone and self.guidance_states[i] is None:
+                self.guidance_states[i] = self.spatial_guidance(new_pos)
             if self.grid[new_pos] == 2:
                 self.pedestrian_positions[i] = None
                 if self.guidance_states[i] == 0:
@@ -193,8 +196,10 @@ class GridEvacEnv(gym.Env):
         truncated = self.current_step >= self.max_step
         reward = -1
 
-        obs= self.get_observation()
+        obs= np.array([self.guidance_states.count(None),self.guidance_states.count(0),self.guidance_states.count(1)])
         info = {"escaped_left": escaped_left,"escaped_right":escaped_right }
         return obs,reward,terminated,truncated,info
         
         
+env = GridEvacEnv()
+print(env.distance_map_guidance_zone)

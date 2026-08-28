@@ -1,4 +1,4 @@
-from old_grid_evac_env import OldGridEvacEnv
+from grid_evac_env import GridEvacEnv
 import numpy as np
 
 starts_3 = [
@@ -9,12 +9,15 @@ starts_4 = [
     (1,1), (1,2), (1,3), (1,4)
 ]
 
-starts_5 = [
-    (1,1), (1,2), (1,3), (1,4), (1,5)
+starts_9 = [
+    (1,1), (1,2), (1,3), (1,4), (1,5), (1,6), (1,7), (1,8), (1,9)
+]
+starts_18 = [
+    (1,1), (1,2), (1,3), (1,4), (1,5), (1,6), (1,7), (1,8), (1,9), 
+    (2,1), (2,2), (2,3), (2,4), (2,5), (2,6), (2,7), (2,8), (2,9)
 ]
 
-
-env = OldGridEvacEnv(start_positions=starts_5)
+env = GridEvacEnv(start_positions=starts_18)
 
 
 
@@ -26,6 +29,7 @@ episodeRewards= []
 episodeSteps = []
 escapedLeft = 0
 escapedRight = 0
+truncateCount = 0
 for i in range(10000):
     obs,info = env.reset()
     terminated= False
@@ -44,8 +48,11 @@ for i in range(10000):
         escapedLeft += info["escaped_left"]
         escapedRight += info["escaped_right"]
         print(obs, sum(obs), len(env.pedestrian_positions))
-    episodeRewards.append(totalReward)
-    episodeSteps.append(env.current_step)
+    if truncated:
+        truncateCount +=1
+    else:
+        episodeRewards.append(totalReward)
+        episodeSteps.append(env.current_step)
 
     
 
@@ -53,7 +60,8 @@ stepNumbers= set(episodeSteps)
 stepDict ={}
 for i in stepNumbers:
     stepDict[f"{i}"] = f"{episodeSteps.count(i)/len(episodeSteps)}"
-print(f"""BFS Crowd 5, Average steps: {np.mean(episodeSteps)}, 
+print(f"""BFS Crowd 18, spatial roudting, Average steps: {np.mean(episodeSteps)}, 
         {stepDict}
         Escaped left: {escapedLeft}, Escaped right: {escapedRight}
+        Truncated: {truncateCount}
         """) 
