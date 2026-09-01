@@ -17,3 +17,9 @@ pytest==9.1.1
 python-dateutil==2.9.0.post0
 six==1.17.0
 typing_extensions==4.16.0
+jupedsim==1.4.2
+shapely
+pandas
+pedpy
+plotly
+nbformat==5.11.1
