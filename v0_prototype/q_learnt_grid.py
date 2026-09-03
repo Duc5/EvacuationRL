@@ -1,5 +1,5 @@
 import numpy as np
-from old_grid_evac_env import OldGridEvacEnv
+from v0_prototype.old_grid_evac_env import OldGridEvacEnv
 
 starts_5 = [
     (1,1), (1,2), (1,3), (1,4), (1,5)

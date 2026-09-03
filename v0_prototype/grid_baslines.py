@@ -1,4 +1,4 @@
-from grid_evac_env import GridEvacEnv
+from v0_prototype.grid_evac_env import GridEvacEnv
 import numpy as np
 
 starts_3 = [

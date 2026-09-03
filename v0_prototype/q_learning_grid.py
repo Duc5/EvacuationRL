@@ -1,5 +1,5 @@
 import numpy as np
-from grid_evac_env import GridEvacEnv
+from v0_prototype.grid_evac_env import GridEvacEnv
 import os
 
 starts_5 = [

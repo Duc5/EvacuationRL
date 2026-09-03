@@ -1,4 +1,4 @@
-from evac_env import TwoExitEvacEnv
+from v0_prototype.evac_env import TwoExitEvacEnv
 import numpy as np
 env = TwoExitEvacEnv()
 
