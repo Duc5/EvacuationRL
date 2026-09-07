@@ -1,3 +1,4 @@
+from stable_baselines3 import PPO
 from scenarios.two_exit_v1 import TwoExitV1Scenario
 from envs.evacuation_env import EvacuationEnv
 
@@ -9,24 +10,23 @@ env = EvacuationEnv(
     record=False,
 )
 
+model = PPO.load(
+    "models/ppo_v1",
+    env=env,
+    device="cpu"
+)
 obs, info = env.reset(seed=0)
-
-print("Initial observation:", obs)
 
 terminated = False
 truncated = False
 
 while not terminated and not truncated:
 
-    # Old action 1 = LR
-    obs, reward, terminated, truncated, info = env.step(1)
-
-    print(
-        f"time={info['elapsed_time']:.2f}",
-        f"reward={reward:.2f}",
-        f"remaining={info['remaining_agents']}",
+    action, _ = model.predict(
+        obs,
+        deterministic=True
     )
 
-print("Final time:", info["elapsed_time"])
+    obs, reward, terminated, truncated, info = env.step(action)
 
-env.close()
+print(info["elapsed_time"])
