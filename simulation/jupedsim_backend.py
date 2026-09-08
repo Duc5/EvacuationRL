@@ -11,8 +11,16 @@ class JuPedSimBackend:
     """
     JuPedSim implementation of the evacuation simulation.
 
-    This class knows about JuPedSim, but knows nothing about Gymnasium,
-    PPO, rewards, observations or action spaces.
+    Supports two routing styles:
+
+        regional:
+            Original v1 guidance-area routing.
+
+        network:
+            v2 junction-based adaptive routing.
+
+    This class knows about JuPedSim, but knows nothing about
+    Gymnasium, PPO, rewards, observations or action spaces.
     """
 
     def __init__(
@@ -24,41 +32,91 @@ class JuPedSimBackend:
         self.scenario = scenario
 
         self.record = record
-        self.trajectory_path = pathlib.Path(trajectory_path)
+        self.trajectory_path = pathlib.Path(
+            trajectory_path
+        )
 
         self.simulation = None
         self.writer = None
 
-        # JuPedSim route information:
+        # --------------------------------------------------------------
+        # JuPedSim targets
+        # --------------------------------------------------------------
+
+        # Maps a logical target name to:
         #
-        # {
-        #     "left": (journey_id, exit_stage_id),
-        #     "right": (journey_id, exit_stage_id)
-        # }
+        #     (journey_id, stage_id)
+        #
+        # v1:
+        #
+        #     "left"
+        #     "right"
+        #
+        # v2:
+        #
+        #     "A", "B", "C"
+        #     "J1", "J2", "J3"
+        #
         self.routes = {}
 
-        # Current route assignment of each pedestrian.
+        # --------------------------------------------------------------
+        # Per-agent state
+        # --------------------------------------------------------------
+
+        # Current target assigned to each pedestrian.
         self.assignments = {}
 
-        # Pedestrians that have left the guidance area
-        # and therefore no longer respond to guidance.
+        # Used only by the original v1 regional guidance.
         self.committed_agents = set()
 
-        # Used for reproducible randomness.
+        # v2:
+        # junction currently occupied by each pedestrian.
+        #
+        # None means the pedestrian is not inside a junction.
+        self.active_junctions = {}
+
+        # Useful for debugging / later analysis.
+        self.agent_origins = {}
+
+        # --------------------------------------------------------------
+        # Current network guidance
+        # --------------------------------------------------------------
+
+        # Example:
+        #
+        # {
+        #     "J1": "A",
+        #     "J2": "C",
+        #     "J3": "B",
+        # }
+        #
+        # This stores what each sign CURRENTLY displays.
+        self.current_guidance = {}
+
+        # --------------------------------------------------------------
+        # Episode state
+        # --------------------------------------------------------------
+
+        self.initial_population = 0
+
         self.rng = None
 
+    # ==================================================================
     # Simulation creation
+    # ==================================================================
+
     def reset(self, seed=None):
 
         self._close_writer()
 
         self.rng = np.random.default_rng(seed)
 
-        #  Optional trajectory recording 
+        # --------------------------------------------------------------
+        # Optional trajectory recording
+        # --------------------------------------------------------------
 
         if self.record:
 
-            # Avoid accidentally trying to reuse an old JuPedSim database.
             if self.trajectory_path.exists():
                 self.trajectory_path.unlink()
 
@@ -70,7 +128,9 @@ class JuPedSimBackend:
         else:
             self.writer = None
 
-        # Create JuPedSim simulation 
+        # --------------------------------------------------------------
+        # Create JuPedSim simulation
+        # --------------------------------------------------------------
 
         self.simulation = jps.Simulation(
             model=jps.CollisionFreeSpeedModel(),
@@ -78,9 +138,55 @@ class JuPedSimBackend:
             trajectory_writer=self.writer,
         )
 
-        # ---------- Create exits and journeys ----------
+        # --------------------------------------------------------------
+        # Reset episode bookkeeping
+        # --------------------------------------------------------------
 
         self.routes = {}
+
+        self.assignments = {}
+        self.committed_agents = set()
+
+        self.active_junctions = {}
+        self.agent_origins = {}
+
+        self.current_guidance = {}
+
+        # --------------------------------------------------------------
+        # Create target stages / journeys
+        # --------------------------------------------------------------
+
+        self._create_exit_routes()
+
+        if self.scenario.routing_mode == "network":
+            self._create_junction_routes()
+
+        # --------------------------------------------------------------
+        # Spawn pedestrians
+        # --------------------------------------------------------------
+
+        if self.scenario.routing_mode == "regional":
+            self._spawn_regional_agents()
+
+        elif self.scenario.routing_mode == "network":
+            self._spawn_network_agents(seed=seed)
+
+        else:
+            raise ValueError(
+                f"Unknown routing mode: "
+                f"{self.scenario.routing_mode}"
+            )
+
+        return self.get_state()
+
+    # ==================================================================
+    # Stage / journey creation
+    # ==================================================================
+
+    def _create_exit_routes(self):
+        """
+        Create one exit stage and one simple journey for every exit.
+        """
 
         for exit_name, exit_geometry in self.scenario.exits.items():
 
@@ -99,19 +205,55 @@ class JuPedSimBackend:
                 exit_stage_id,
             )
 
-        # Episode bookkeeping, which pedestrian heading where, who has commited to one exit
+    def _create_junction_routes(self):
+        """
+        Create JuPedSim waypoint stages for every controlled junction.
 
-        self.assignments = {}
-        self.committed_agents = set()
+        A journey containing one waypoint simply causes an agent to
+        move toward that waypoint.
 
-        # ---------- Spawn pedestrians ----------
+        Before the agent actually reaches the waypoint, entering the
+        larger junction polygon causes our controller to assign the
+        next target.
+        """
 
-        for position in self.scenario.start_positions:
+        for junction_name, waypoint_position in self.scenario.junction_waypoints.items():
 
-            # We only need some valid initial journey.
-            #
-            # The first Gymnasium action will overwrite it before
-            # any simulation movement occurs.
+            waypoint_stage_id = (
+                self.simulation.add_waypoint_stage(
+                    waypoint_position,
+                    self.scenario.junction_waypoint_radius,
+                )
+            )
+
+            journey_id = self.simulation.add_journey(
+                jps.JourneyDescription([
+                    waypoint_stage_id
+                ])
+            )
+
+            self.routes[junction_name] = (
+                journey_id,
+                waypoint_stage_id,
+            )
+
+    # ==================================================================
+    # Agent spawning
+    # ==================================================================
+
+    def _spawn_regional_agents(self):
+        """
+        Original v1 spawning behaviour.
+        """
+
+        positions = list(
+            self.scenario.start_positions
+        )
+
+        self.initial_population = len(positions)
+
+        for position in positions:
+
             group = self._initial_group(position)
 
             journey_id, stage_id = self.routes[group]
@@ -124,99 +266,314 @@ class JuPedSimBackend:
                 )
             )
 
-            agent_id = self.simulation.add_agent(parameters)
+            agent_id = self.simulation.add_agent(
+                parameters
+            )
 
-            # No RL guidance has actually been applied yet.
             self.assignments[agent_id] = None
+    def _spawn_network_agents(self,seed=None,):
+        """
+        Spawn pedestrians for a network scenario.
 
-        return self.get_state()
+        If room_counts is configured, generate a seeded crowd.
 
-    # ------------------------------------------------------------------
+        Otherwise fall back to one test pedestrian per room for
+        development/debugging.
+        """
+
+        if self.scenario.room_counts is not None:
+            positions_by_room = (self.scenario.generate_start_positions(seed=seed))
+
+        else:
+            positions_by_room = {
+                room_name: [position]
+                for room_name, position in self.scenario.test_positions.items()
+            }
+
+        self.initial_population = sum(
+            len(positions)
+            for positions in positions_by_room.values()
+        )
+
+        for (room_name,positions) in positions_by_room.items():
+
+            initial_target = (self.scenario.initial_targets[room_name])
+
+            journey_id, stage_id = (self.routes[initial_target])
+
+            for position in positions:
+
+                parameters = (
+                    jps.CollisionFreeSpeedModelAgentParameters(
+                        position=position,
+                        journey_id=journey_id,
+                        stage_id=stage_id,
+                    )
+                )
+
+                agent_id = (
+                    self.simulation.add_agent(
+                        parameters
+                    )
+                )
+
+                self.assignments[agent_id] = initial_target
+
+                self.active_junctions[agent_id] = None
+
+                self.agent_origins[agent_id] = room_name
+    # ==================================================================
     # Guidance
-    # ------------------------------------------------------------------
+    # ==================================================================
 
     def apply_guidance(self, guidance):
         """
-        Apply the current guidance configuration.
-
-        For the v1 scenario, guidance looks like:
-
-            {
-                "left": "left",
-                "right": "right"
-            }
-
-        Meaning:
-
-            pedestrians in the left guidance region -> left exit
-            pedestrians in the right guidance region -> right exit
+        Apply guidance according to the scenario routing mode.
         """
 
         self._require_simulation()
 
+        if self.scenario.routing_mode == "regional":
+
+            self._apply_regional_guidance(
+                guidance
+            )
+
+        elif self.scenario.routing_mode == "network":
+
+            self._set_network_guidance(
+                guidance
+            )
+
+        else:
+            raise ValueError(
+                f"Unknown routing mode: "
+                f"{self.scenario.routing_mode}"
+            )
+
+    # ------------------------------------------------------------------
+    # v1 guidance
+    # ------------------------------------------------------------------
+
+    def _apply_regional_guidance(
+        self,
+        guidance,
+    ):
+        """
+        Original v1 behaviour.
+
+        Example:
+
+            {
+                "left": "left",
+                "right": "right",
+            }
+
+        Pedestrians inside the guidance area are immediately
+        rerouted according to their spatial region.
+        """
         for agent in self.simulation.agents():
 
-            # Once committed, do not reroute.
             if agent.id in self.committed_agents:
                 continue
 
             position = Point(agent.position)
 
-            # Only pedestrians still inside the guidance-controlled
-            # region respond to the signs.
-            if not self.scenario.guidance_area.covers(position):
+            if not self.scenario.guidance_area.covers(
+                position
+            ):
                 continue
 
             x, _ = agent.position
 
-            group = self._current_guidance_group(x)
+            group = (
+                self._current_guidance_group(x)
+            )
 
             target = guidance[group]
 
-            # Avoid issuing the same reroute repeatedly.
-            if self.assignments[agent.id] == target:
+            if (
+                self.assignments[agent.id]
+                == target
+            ):
                 continue
 
-            journey_id, stage_id = self.routes[target]
-
-            self.simulation.switch_agent_journey(
+            self._switch_agent_target(
                 agent.id,
-                journey_id,
-                stage_id,
+                target,
             )
 
-            self.assignments[agent.id] = target
+    # ------------------------------------------------------------------
+    # v2 guidance
+    # ------------------------------------------------------------------
 
-    # ------------------------------------------------------------------
+    def _set_network_guidance(
+        self,
+        guidance,
+    ):
+        """
+        Change what the junction signs currently display.
+
+        This does NOT immediately reroute pedestrians.
+
+        A pedestrian reads the sign only when entering the
+        corresponding physical junction.
+        
+        Guidance is a dictionary of Junction:Next Destination e.g {J1:A, J2:J1, J3:B}
+        """
+
+        
+        for junction, target in guidance.items():
+
+            # Error handling
+            if (junction not in self.scenario.guidance_choices):
+                raise ValueError(
+                    f"Unknown junction: {junction}"
+                )
+
+            # The valid choices that the current junction can lead to
+            valid_choices = (self.scenario.guidance_choices[junction])
+
+            # Error handling for invalid routes
+            if target not in valid_choices:
+                raise ValueError(
+                    f"Invalid guidance choice "
+                    f"{junction} -> {target}. "
+                    f"Valid choices: {valid_choices}"
+                )
+
+            self.current_guidance[junction] = target
+
+    # ==================================================================
     # Time advancement
-    # ------------------------------------------------------------------
+    # ==================================================================
 
     def advance(self, seconds):
         """
         Advance JuPedSim by approximately `seconds`
         of simulated time.
+
+        Network junction detection occurs every JuPedSim iteration,
+        not merely once per Gymnasium control step.
         """
 
         self._require_simulation()
 
-        iterations = round(
-            seconds / self.simulation.delta_time()
-        )
+        iterations = round(seconds/ self.simulation.delta_time())
 
         for _ in range(iterations):
 
-            if self.simulation.agent_count() == 0:
+            if (self.simulation.agent_count()== 0):
                 break
 
             self.simulation.iterate()
 
-        self._update_committed_agents()
+            if (self.scenario.routing_mode== "network"):
+                self._handle_junction_entries()
+
+        if (self.scenario.routing_mode == "regional"):
+            self._update_committed_agents()
 
         return self.get_state()
 
-    # ------------------------------------------------------------------
+    # ==================================================================
+    # v2 junction handling
+    # ==================================================================
+
+    def _handle_junction_entries(self):
+        """
+        Detect pedestrians entering controlled junctions.
+
+        An agent reads a sign exactly once per junction encounter.
+
+        Once the agent leaves the junction polygon,
+        active_junctions[agent_id] returns to None.
+
+        If they later return, that counts as a new encounter.
+        """
+
+        for agent in self.simulation.agents():
+
+            agent_id = agent.id
+
+            position = Point(agent.position)
+
+            current_junction = (self._junction_containing(position))
+
+            previous_junction = (self.active_junctions.get(agent_id))
+
+            # Not currently inside a junction
+            if current_junction is None:
+                self.active_junctions[agent_id] = None
+                continue
+
+            # Still inside the same junction
+            if (current_junction== previous_junction):
+                continue
+
+            # Newly entered a junction
+            if (current_junction not in self.current_guidance):
+                raise RuntimeError(
+                    f"Agent {agent_id} entered "
+                    f"{current_junction}, but no "
+                    f"guidance has been configured "
+                    f"for that junction."
+                )
+
+            # Newly Entered a junction, reset target based on the junction it entered
+            target = (self.current_guidance[current_junction])
+
+
+            self._switch_agent_target(agent_id,target,)
+
+            # Maintain bookkeeping, this agent is now in this newly entered junction
+            self.active_junctions[agent_id] = current_junction
+
+    def _junction_containing(self,position,):
+        """
+        Return the name of the junction containing this position.
+
+        Returns None when the pedestrian is outside all controlled
+        junctions.
+        """
+
+        for (junction_name,junction_polygon) in self.scenario.junctions.items():
+
+            if junction_polygon.covers(position):
+                return junction_name
+
+        return None
+
+    # ==================================================================
+    # Route switching
+    # ==================================================================
+
+    def _switch_agent_target(self,agent_id,target,):
+        """
+        Switch an agent toward either:
+
+            - an exit
+            - another junction waypoint
+        """
+
+        if target not in self.routes:
+            raise ValueError(
+                f"Unknown routing target: {target}"
+            )
+
+        journey_id, stage_id = (self.routes[target])
+
+        self.simulation.switch_agent_journey(
+            agent_id,
+            journey_id,
+            stage_id,
+        )
+
+        self.assignments[agent_id] = target
+
+    # ==================================================================
     # State
-    # ------------------------------------------------------------------
+    # ==================================================================
 
     def get_state(self):
         """
@@ -235,50 +592,64 @@ class JuPedSimBackend:
             agents.append(
                 AgentState(
                     id=agent.id,
-                    position=(float(x), float(y)),
-                    assignment=self.assignments.get(agent.id),
-                    committed=agent.id in self.committed_agents,
+                    position=(float(x),float(y),),
+                    assignment=(self.assignments.get(agent.id)),
+                    committed=(agent.id in self.committed_agents),
                 )
             )
 
         return SimulationState(
-            elapsed_time=self.simulation.elapsed_time(),
+            elapsed_time=(self.simulation.elapsed_time()),
             agents=agents,
-            initial_population=self.scenario.initial_population,
+            initial_population=(self.initial_population),
         )
 
-    # ------------------------------------------------------------------
+    # ==================================================================
     # Convenience information
-    # ------------------------------------------------------------------
+    # ==================================================================
 
     @property
     def elapsed_time(self):
+
         self._require_simulation()
-        return self.simulation.elapsed_time()
+
+        return (
+            self.simulation.elapsed_time()
+        )
 
     @property
     def remaining_agents(self):
+
         self._require_simulation()
-        return self.simulation.agent_count()
+
+        return (
+            self.simulation.agent_count()
+        )
 
     @property
     def is_evacuated(self):
-        return self.remaining_agents == 0
 
-    # ------------------------------------------------------------------
-    # Internal helpers
-    # ------------------------------------------------------------------
+        return (
+            self.remaining_agents == 0
+        )
 
-    def _initial_group(self, position):
+    # ==================================================================
+    # Original v1 helpers
+    # ==================================================================
+
+    def _initial_group(
+        self,
+        position,
+    ):
         """
-        Reproduce the original v1 reset behaviour.
-
-        Pedestrians exactly on the split line are randomly assigned
-        an initial placeholder journey.
+        Reproduce original v1 reset behaviour.
         """
 
         x, _ = position
-        split = self.scenario.guidance_split_x
+
+        split = (
+            self.scenario.guidance_split_x
+        )
 
         if x < split:
             return "left"
@@ -292,46 +663,64 @@ class JuPedSimBackend:
             else "right"
         )
 
-    def _current_guidance_group(self, x):
+    def _current_guidance_group(
+        self,
+        x,
+    ):
         """
-        Reproduce the original v1 action behaviour.
-
-        Notice that x == split belongs to the left region here,
-        matching the previous _apply_action().
+        Reproduce original v1 action behaviour.
         """
 
-        if x <= self.scenario.guidance_split_x:
+        if (
+            x
+            <= self.scenario.guidance_split_x
+        ):
             return "left"
 
         return "right"
 
     def _update_committed_agents(self):
+        """
+        Original v1 commitment behaviour.
+        """
 
         for agent in self.simulation.agents():
 
-            position = Point(agent.position)
+            position = Point(
+                agent.position
+            )
 
-            if not self.scenario.guidance_area.covers(position):
-                self.committed_agents.add(agent.id)
+            if not (
+                self.scenario.guidance_area.covers(
+                    position
+                )
+            ):
+                self.committed_agents.add(
+                    agent.id
+                )
+
+    # ==================================================================
+    # Validation / cleanup
+    # ==================================================================
 
     def _require_simulation(self):
 
         if self.simulation is None:
             raise RuntimeError(
-                "Simulation has not been created. Call reset() first."
+                "Simulation has not been created. "
+                "Call reset() first."
             )
-
-    # ------------------------------------------------------------------
-    # Cleanup
-    # ------------------------------------------------------------------
 
     def _close_writer(self):
 
         if self.writer is not None:
+
             self.writer.close()
+
             self.writer = None
 
     def close(self):
 
         self._close_writer()
+
         self.simulation = None

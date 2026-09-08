@@ -1,32 +1,7 @@
-from scenarios.two_exit_v1 import TwoExitV1Scenario
-from envs.evacuation_env import EvacuationEnv
+from scenarios.building_v2 import BuildingV2Scenario
 
+scenario = BuildingV2Scenario()
 
-scenario = TwoExitV1Scenario()
-
-env = EvacuationEnv(
-    scenario=scenario,
-    record=False,
-)
-
-obs, info = env.reset(seed=0)
-
-print("Initial observation:", obs)
-
-terminated = False
-truncated = False
-
-while not terminated and not truncated:
-
-    # Old action 1 = LR
-    obs, reward, terminated, truncated, info = env.step(1)
-
-    print(
-        f"time={info['elapsed_time']:.2f}",
-        f"reward={reward:.2f}",
-        f"remaining={info['remaining_agents']}",
-    )
-
-print("Final time:", info["elapsed_time"])
-
-env.close()
+print(scenario.junction_waypoints)
+print(scenario.guidance_choices)
+print(scenario.initial_targets)

@@ -43,7 +43,7 @@ class TwoExitV1Scenario:
             (7.5, 7.5),
             (2.5, 7.5),
         ])
-
+        self.routing_mode = "regional"
         # Boundary separating the two guidance regions
         self.guidance_split_x = 5.0
 
