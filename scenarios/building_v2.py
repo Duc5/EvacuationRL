@@ -139,14 +139,14 @@ class BuildingV2Scenario:
             6.4, 1.5,
         )
 
-        # Exit C — wide: 2.4 m
+        # Exit C — wide: 2.0 m
         self.exit_C_neck = box(
-            24.0, 23.8,
-            26.0, 26.2,
+            24.0, 24.0,
+            30.0, 26.0,
         )
         self.exit_C = box(
-            25.5, 23.8,
-            26.0, 26.2,
+            29.5, 24.0,
+            30.0, 26.0,
         )
 
         self.exits = {

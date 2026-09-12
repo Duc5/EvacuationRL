@@ -1,0 +1,49 @@
+J1,J2,J3,status,evacuation_time,remaining_agents,cyclic,trapped_agents,trapped_rooms,cycles
+C,C,A,PASS,40.550000000000004,0,False,0,,
+C,J1,A,PASS,54.09,0,False,0,,
+C,C,J1,PASS,56.76,0,False,0,,
+C,J3,A,PASS,58.120000000000005,0,False,0,,
+A,C,A,PASS,61.75,0,False,0,,
+A,C,J2,PASS,63.63,0,False,0,,
+C,J3,J1,PASS,63.81,0,False,0,,
+C,C,J2,PASS,64.7,0,False,0,,
+C,J1,J1,PASS,64.88,0,False,0,,
+A,C,J1,PASS,67.84,0,False,0,,
+A,J3,A,PASS,76.92,0,False,0,,
+A,J1,A,PASS,79.53,0,False,0,,
+A,J1,J1,PASS,82.02,0,False,0,,
+A,J3,J1,PASS,89.22,0,False,0,,
+J3,C,J2,PASS,90.36,0,False,0,,
+J2,J3,A,PASS,90.97,0,False,0,,
+A,C,B,PASS,95.12,0,False,0,,
+A,J1,B,PASS,95.12,0,False,0,,
+C,C,B,PASS,95.12,0,False,0,,
+C,J1,B,PASS,95.12,0,False,0,,
+J3,C,A,PASS,115.93,0,False,0,,
+J2,C,A,PASS,122.28,0,False,0,,
+J2,C,B,PASS,122.28,0,False,0,,
+A,J3,B,PASS,133.72,0,False,0,,
+C,J3,B,PASS,133.72,0,False,0,,
+J3,C,B,PASS,147.28,0,False,0,,
+J3,J1,B,PASS,159.84,0,False,0,,
+J3,J3,A,TIMEOUT,180.0,2,False,0,,
+J2,J3,B,TIMEOUT,180.0,3,False,0,,
+J3,J3,B,TIMEOUT,180.0,3,False,0,,
+A,J1,J2,TIMEOUT,180.0,6,False,0,,
+C,J1,J2,TIMEOUT,180.0,8,False,0,,
+J3,J1,A,TIMEOUT,180.0,9,False,0,,
+J2,C,J2,TIMEOUT,180.0,59,False,0,,
+J2,C,J1,TIMEOUT,180.0,62,False,0,,
+A,J3,J2,CYCLIC,,60,True,60,"B,C","(('J2', 'J3'),)"
+C,J3,J2,CYCLIC,,60,True,60,"B,C","(('J2', 'J3'),)"
+J2,J1,B,CYCLIC,,65,True,65,"A,C","(('J1', 'J2'),)"
+J2,J1,A,CYCLIC,,65,True,65,"A,C","(('J1', 'J2'),)"
+J3,C,J1,CYCLIC,,75,True,75,"A,B","(('J1', 'J3'),)"
+J2,J1,J1,CYCLIC,,100,True,100,"A,B,C","(('J1', 'J2'),)"
+J2,J1,J2,CYCLIC,,100,True,100,"A,B,C","(('J1', 'J2'),)"
+J2,J3,J1,CYCLIC,,100,True,100,"A,B,C","(('J1', 'J2', 'J3'),)"
+J2,J3,J2,CYCLIC,,100,True,100,"A,B,C","(('J2', 'J3'),)"
+J3,J1,J1,CYCLIC,,100,True,100,"A,B,C","(('J1', 'J3'),)"
+J3,J1,J2,CYCLIC,,100,True,100,"A,B,C","(('J1', 'J2', 'J3'),)"
+J3,J3,J1,CYCLIC,,100,True,100,"A,B,C","(('J1', 'J3'),)"
+J3,J3,J2,CYCLIC,,100,True,100,"A,B,C","(('J2', 'J3'),)"

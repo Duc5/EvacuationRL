@@ -1,0 +1,6 @@
+scenario,A,B,C,D,J1,J2,J3,evacuation_time
+balanced,25,25,25,25,A,C,A,44.7
+A_extreme,49,17,17,17,C,J3,A,49.97
+B_extreme,19,42,20,19,C,C,A,45.71
+C_extreme,19,20,42,19,A,C,B,57.32
+D_extreme,22,21,21,36,C,C,A,41.5
