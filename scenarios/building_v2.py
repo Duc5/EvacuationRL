@@ -191,7 +191,15 @@ class BuildingV2Scenario:
             "J3": (5.0, 18.0),
         }
         self.junction_waypoint_radius = 0.35
-
+        self.congestion_regions = {
+            "J1": self.junctions["J1"],
+            "J2": self.junctions["J2"],
+            "J3": self.junctions["J3"],
+            "upper_corridor": self.upper_corridor,
+            "lower_corridor": self.lower_corridor,
+            "left_connector": self.left_loop_connector,
+            "right_connector": self.right_loop_connector,
+        }
         # ==============================================================
         # GUIDANCE GRAPH
         # ==============================================================        

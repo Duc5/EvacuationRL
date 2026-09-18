@@ -34,7 +34,7 @@ POPULATION_SCENARIOS = {
         "A": 22, "B": 21, "C": 21, "D": 36
     },
 }
-SEED = 0
+SEED = 1
 MAX_TIME = 180.0
 CONTROL_INTERVAL = 0.5
 
@@ -414,7 +414,7 @@ def main():
 
     output_path = (
         output_dir
-        / "v2_population_sweep_seed0.csv"
+        / "v2_population_sweep_seed1.csv"
     )
 
     fieldnames = [
@@ -450,7 +450,7 @@ def main():
 
     summary_path = (
         output_dir
-        / "v2_population_best_seed0.csv"
+        / "v2_population_best_seed1.csv"
     )
 
     summary_fields = [

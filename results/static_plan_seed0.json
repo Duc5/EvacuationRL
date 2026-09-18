@@ -1,0 +1,712 @@
+{
+  "balanced": {
+    "J1=A|J2=C|J3=B": {
+      "elapsed_time": 62.940000000000005,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J1": {
+      "elapsed_time": 51.82,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J2": {
+      "elapsed_time": 61.230000000000004,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=A": {
+      "elapsed_time": 46.68,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=B": {
+      "elapsed_time": 62.940000000000005,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J1": {
+      "elapsed_time": 68.36,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J2": {
+      "elapsed_time": 72.25,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=A": {
+      "elapsed_time": 63.71,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=B": {
+      "elapsed_time": 87.51,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=J1": {
+      "elapsed_time": 71.66,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=A": {
+      "elapsed_time": 63.96,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=B": {
+      "elapsed_time": 62.940000000000005,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J1": {
+      "elapsed_time": 55.1,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J2": {
+      "elapsed_time": 62.97,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=A": {
+      "elapsed_time": 45.84,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=B": {
+      "elapsed_time": 62.940000000000005,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J1": {
+      "elapsed_time": 61.06,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J2": {
+      "elapsed_time": 81.68,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=A": {
+      "elapsed_time": 54.33,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=B": {
+      "elapsed_time": 87.51,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=J1": {
+      "elapsed_time": 64.62,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=A": {
+      "elapsed_time": 49.61,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=B": {
+      "elapsed_time": 87.02,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=J1": {
+      "elapsed_time": 152.32,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=J2": {
+      "elapsed_time": 141.43,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=A": {
+      "elapsed_time": 87.02,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=J3|J3=B": {
+      "elapsed_time": 118.55,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=J3|J3=A": {
+      "elapsed_time": 65.58,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=B": {
+      "elapsed_time": 88.62,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=J2": {
+      "elapsed_time": 79.32000000000001,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    },
+    "J1=J3|J2=J1|J3=B": {
+      "elapsed_time": 108.85000000000001,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J1|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    },
+    "J1=J3|J2=J3|J3=B": {
+      "elapsed_time": 118.42,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J3|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    }
+  },
+  "A_extreme": {
+    "J1=A|J2=C|J3=B": {
+      "elapsed_time": 49.46,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J1": {
+      "elapsed_time": 60.160000000000004,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J2": {
+      "elapsed_time": 50.95,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=A": {
+      "elapsed_time": 59.45,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=B": {
+      "elapsed_time": 59.43,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J1": {
+      "elapsed_time": 72.82000000000001,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J2": {
+      "elapsed_time": 73.87,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=A": {
+      "elapsed_time": 69.38,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=B": {
+      "elapsed_time": 55.43,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=J1": {
+      "elapsed_time": 73.16,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=A": {
+      "elapsed_time": 69.44,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=B": {
+      "elapsed_time": 53.160000000000004,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J1": {
+      "elapsed_time": 58.52,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J2": {
+      "elapsed_time": 58.04,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=A": {
+      "elapsed_time": 53.160000000000004,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=B": {
+      "elapsed_time": 53.6,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J1": {
+      "elapsed_time": 60.96,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J2": {
+      "elapsed_time": 71.7,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=A": {
+      "elapsed_time": 53.6,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=B": {
+      "elapsed_time": 55.43,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=J1": {
+      "elapsed_time": 60.38,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=A": {
+      "elapsed_time": 49.800000000000004,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=B": {
+      "elapsed_time": 159.04,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=J1": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 23
+    },
+    "J1=J2|J2=C|J3=J2": {
+      "elapsed_time": 175.24,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=A": {
+      "elapsed_time": 159.04,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=J3|J3=B": {
+      "elapsed_time": 91.32000000000001,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=J3|J3=A": {
+      "elapsed_time": 79.16,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=B": {
+      "elapsed_time": 83.02,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=J2": {
+      "elapsed_time": 89.52,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=A": {
+      "elapsed_time": 111.67,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J1|J3=B": {
+      "elapsed_time": 94.89,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J1|J3=A": {
+      "elapsed_time": 160.85,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J3|J3=B": {
+      "elapsed_time": 108.97,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J3|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    }
+  },
+  "B_extreme": {
+    "J1=A|J2=C|J3=B": {
+      "elapsed_time": 104.89,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J1": {
+      "elapsed_time": 62.89,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J2": {
+      "elapsed_time": 73.3,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=A": {
+      "elapsed_time": 54.89,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=B": {
+      "elapsed_time": 104.89,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J1": {
+      "elapsed_time": 73.68,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J2": {
+      "elapsed_time": 84.56,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=A": {
+      "elapsed_time": 69.05,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=B": {
+      "elapsed_time": 142.55,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=J1": {
+      "elapsed_time": 87.81,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=A": {
+      "elapsed_time": 68.02,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=B": {
+      "elapsed_time": 104.89,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J1": {
+      "elapsed_time": 60.77,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J2": {
+      "elapsed_time": 71.43,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=A": {
+      "elapsed_time": 45.58,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=B": {
+      "elapsed_time": 104.89,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J1": {
+      "elapsed_time": 65.85,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J2": {
+      "elapsed_time": 94.71000000000001,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=A": {
+      "elapsed_time": 52.550000000000004,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=B": {
+      "elapsed_time": 142.55,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=J1": {
+      "elapsed_time": 68.88,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=A": {
+      "elapsed_time": 60.34,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=B": {
+      "elapsed_time": 104.89,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=J1": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 11
+    },
+    "J1=J2|J2=C|J3=J2": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    },
+    "J1=J2|J2=C|J3=A": {
+      "elapsed_time": 74.02,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=J3|J3=B": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 9
+    },
+    "J1=J2|J2=J3|J3=A": {
+      "elapsed_time": 71.12,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=B": {
+      "elapsed_time": 133.54,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=J2": {
+      "elapsed_time": 85.43,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=A": {
+      "elapsed_time": 96.7,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J1|J3=B": {
+      "elapsed_time": 175.3,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J1|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    },
+    "J1=J3|J2=J3|J3=B": {
+      "elapsed_time": 174.97,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J3|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    }
+  },
+  "C_extreme": {
+    "J1=A|J2=C|J3=B": {
+      "elapsed_time": 60.47,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J1": {
+      "elapsed_time": 57.08,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J2": {
+      "elapsed_time": 69.14,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=A": {
+      "elapsed_time": 57.08,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=B": {
+      "elapsed_time": 64.29,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J1": {
+      "elapsed_time": 73.64,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J2": {
+      "elapsed_time": 77.47,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=A": {
+      "elapsed_time": 75.86,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=B": {
+      "elapsed_time": 89.58,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=J1": {
+      "elapsed_time": 78.79,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=A": {
+      "elapsed_time": 68.11,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=B": {
+      "elapsed_time": 60.47,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J1": {
+      "elapsed_time": 60.04,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J2": {
+      "elapsed_time": 70.43,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=A": {
+      "elapsed_time": 57.370000000000005,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=B": {
+      "elapsed_time": 72.9,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J1": {
+      "elapsed_time": 74.62,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J2": {
+      "elapsed_time": 87.09,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=A": {
+      "elapsed_time": 72.9,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=B": {
+      "elapsed_time": 89.58,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=J1": {
+      "elapsed_time": 73.22,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=A": {
+      "elapsed_time": 58.59,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=B": {
+      "elapsed_time": 103.34,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=J1": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 13
+    },
+    "J1=J2|J2=C|J3=J2": {
+      "elapsed_time": 131.95,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=A": {
+      "elapsed_time": 103.34,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=J3|J3=B": {
+      "elapsed_time": 106.26,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=J3|J3=A": {
+      "elapsed_time": 73.71000000000001,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=B": {
+      "elapsed_time": 71.32000000000001,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=J2": {
+      "elapsed_time": 83.78,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    },
+    "J1=J3|J2=J1|J3=B": {
+      "elapsed_time": 105.4,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J1|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    },
+    "J1=J3|J2=J3|J3=B": {
+      "elapsed_time": 116.28,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J3|J3=A": {
+      "elapsed_time": 102.26,
+      "remaining_agents": 0
+    }
+  },
+  "D_extreme": {
+    "J1=A|J2=C|J3=B": {
+      "elapsed_time": 52.54,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J1": {
+      "elapsed_time": 44.68,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=J2": {
+      "elapsed_time": 56.15,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=C|J3=A": {
+      "elapsed_time": 41.550000000000004,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=B": {
+      "elapsed_time": 52.54,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J1": {
+      "elapsed_time": 58.36,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=J2": {
+      "elapsed_time": 63.480000000000004,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J1|J3=A": {
+      "elapsed_time": 54.63,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=B": {
+      "elapsed_time": 74.51,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=J1": {
+      "elapsed_time": 61.7,
+      "remaining_agents": 0
+    },
+    "J1=A|J2=J3|J3=A": {
+      "elapsed_time": 54.230000000000004,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=B": {
+      "elapsed_time": 52.54,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J1": {
+      "elapsed_time": 48.47,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=J2": {
+      "elapsed_time": 55.56,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=C|J3=A": {
+      "elapsed_time": 41.81,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=B": {
+      "elapsed_time": 52.54,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J1": {
+      "elapsed_time": 58.51,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=J2": {
+      "elapsed_time": 71.23,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J1|J3=A": {
+      "elapsed_time": 51.61,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=B": {
+      "elapsed_time": 74.51,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=J1": {
+      "elapsed_time": 59.300000000000004,
+      "remaining_agents": 0
+    },
+    "J1=C|J2=J3|J3=A": {
+      "elapsed_time": 45.72,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=B": {
+      "elapsed_time": 79.7,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=J1": {
+      "elapsed_time": 125.0,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=J2": {
+      "elapsed_time": 111.54,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=C|J3=A": {
+      "elapsed_time": 79.7,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=J3|J3=B": {
+      "elapsed_time": 107.92,
+      "remaining_agents": 0
+    },
+    "J1=J2|J2=J3|J3=A": {
+      "elapsed_time": 64.41,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=B": {
+      "elapsed_time": 81.24,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=J2": {
+      "elapsed_time": 74.26,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=C|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    },
+    "J1=J3|J2=J1|J3=B": {
+      "elapsed_time": 92.77,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J1|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    },
+    "J1=J3|J2=J3|J3=B": {
+      "elapsed_time": 101.59,
+      "remaining_agents": 0
+    },
+    "J1=J3|J2=J3|J3=A": {
+      "elapsed_time": 180.0,
+      "remaining_agents": 2
+    }
+  }
+}

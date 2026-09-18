@@ -1,5 +1,5 @@
 import pathlib
-
+import time
 import jupedsim as jps
 import numpy as np
 from shapely import Point
@@ -74,7 +74,8 @@ class JuPedSimBackend:
         #
         # None means the pedestrian is not inside a junction.
         self.active_junctions = {}
-
+        self.routing_check_interval = 0.1
+        self._time_since_routing_check = 0.0
         # Useful for debugging / later analysis.
         self.agent_origins = {}
 
@@ -108,7 +109,7 @@ class JuPedSimBackend:
     def reset(self, seed=None):
 
         self._close_writer()
-
+        self._time_since_routing_check = 0.0    
         self.rng = np.random.default_rng(seed)
 
         # --------------------------------------------------------------
@@ -447,35 +448,56 @@ class JuPedSimBackend:
     # ==================================================================
     # Time advancement
     # ==================================================================
-
     def advance(self, seconds):
-        """
-        Advance JuPedSim by approximately `seconds`
-        of simulated time.
+        target_time = self.elapsed_time + seconds
 
-        Network junction detection occurs every JuPedSim iteration,
-        not merely once per Gymnasium control step.
-        """
+        iterate_time = 0.0
+        routing_time = 0.0
+        iterations = 0
+        routing_checks = 0
 
-        self._require_simulation()
+        start_total = time.perf_counter()
 
-        iterations = round(seconds/ self.simulation.delta_time())
-
-        for _ in range(iterations):
-
-            if (self.simulation.agent_count()== 0):
+        while self.elapsed_time < target_time:
+            if self.simulation.agent_count() == 0:
                 break
+            time_before = self.elapsed_time
 
+            start = time.perf_counter()
             self.simulation.iterate()
+            iterate_time += time.perf_counter() - start
 
-            if (self.scenario.routing_mode== "network"):
+            # Measure actual simulated time advanced by JuPedSim.
+            dt = self.elapsed_time - time_before
+            self._time_since_routing_check += dt
+
+            # Only check junction entries every 0.1 simulated seconds.
+            if self._time_since_routing_check >= self.routing_check_interval:
+                start = time.perf_counter()
                 self._handle_junction_entries()
+                routing_time += time.perf_counter() - start
 
-        if (self.scenario.routing_mode == "regional"):
-            self._update_committed_agents()
+                routing_checks += 1
+                self._time_since_routing_check -= self.routing_check_interval
 
-        return self.get_state()
+            iterations += 1
 
+        start = time.perf_counter()
+        state = self.get_state()
+        state_time = time.perf_counter() - start
+
+        total_time = time.perf_counter() - start_total
+
+        self.last_profile = {
+            "iterations": iterations,
+            "routing_checks": routing_checks,
+            "iterate_time": iterate_time,
+            "routing_time": routing_time,
+            "state_time": state_time,
+            "total_time": total_time,
+        }
+
+        return state
     # ==================================================================
     # v2 junction handling
     # ==================================================================
