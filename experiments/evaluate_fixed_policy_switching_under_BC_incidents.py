@@ -19,7 +19,7 @@ INCIDENTS = ["B_connector", "C_exit"]
 
 PRE_POLICY = "CCA"
 
-SEED = 0
+SEED = 1
 CONTROL_INTERVAL = 10.0
 MAX_TIME = 180.0
 MAX_WORKERS = 11
@@ -30,7 +30,7 @@ STATIC_BASELINE_MEAN = 71.47
 
 OUTPUT_PATH = Path(
     "results/incident_one_switch_"
-    "A40_B20_C20_D20_Csurge40_t10_seed0.csv"
+    "A40_B20_C20_D20_Csurge40_t10_seed1.csv"
 )
 
 

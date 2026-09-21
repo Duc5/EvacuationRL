@@ -1,0 +1,6 @@
+Gain vs Robust fixed:
+Seed0: 4.78s 6.7%
+Seed1: 4.38s 6.1%
+Seed2: 6.03s 8.4%
+Seed3: 5.36s 7.5%
+Seed4: 5.8s 8.1%
