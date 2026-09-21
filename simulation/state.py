@@ -25,6 +25,7 @@ class SimulationState:
     elapsed_time: float
     agents: list[AgentState]
     initial_population: int
+    active_incident: str | None = None
 
     @property
     def remaining_agents(self) -> int:

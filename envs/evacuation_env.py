@@ -31,6 +31,10 @@ class EvacuationEnv(gym.Env):
         trajectory_path="v2_evac.sqlite",
         population_scenarios=None,
         exit_proximity=3.0,
+        dynamic_surge_rooms=None,
+        dynamic_surge_times=None,
+        dynamic_surge_count=0,
+        incident=None
     ):
         super().__init__()
 
@@ -49,7 +53,12 @@ class EvacuationEnv(gym.Env):
             self.scenario.congestion_regions.keys()
         )
         self.exit_proximity = exit_proximity
-
+        self.dynamic_surge_rooms = dynamic_surge_rooms
+        self.dynamic_surge_times = dynamic_surge_times
+        self.dynamic_surge_count = dynamic_surge_count
+        self.incident = incident
+        self.current_surge_room = None
+        self.current_surge_time = None
         self.backend = JuPedSimBackend(
             scenario=scenario,
             record=record,
@@ -92,7 +101,7 @@ class EvacuationEnv(gym.Env):
             + len(self.exit_names)
             + len(self.junction_names)
             + len(self.exit_names)
-            + 1
+            + 3
         )
         self.observation_space = spaces.Box(
             low=0.0,
@@ -127,6 +136,24 @@ class EvacuationEnv(gym.Env):
             self.current_population_name = None
             backend_seed = seed
 
+        # Take a random surge room or surge time to add to environment
+        if self.dynamic_surge_rooms and self.dynamic_surge_times:
+            room_index = int(self.np_random.integers(len(self.dynamic_surge_rooms)))
+            time_index = int(self.np_random.integers(len(self.dynamic_surge_times)))
+
+            self.current_surge_room = self.dynamic_surge_rooms[room_index]
+            self.current_surge_time = self.dynamic_surge_times[time_index]
+
+            self.scenario.dynamic_events = [{
+                "time": self.current_surge_time,
+                "room": self.current_surge_room,
+                "count": self.dynamic_surge_count,
+                "incident": self.incident
+            }]
+        else:
+            self.current_surge_room = None
+            self.current_surge_time = None
+
         state = self.backend.reset(seed=backend_seed)
 
         observation = self._make_observation(state)
@@ -151,7 +178,7 @@ class EvacuationEnv(gym.Env):
 
         reward = self._calculate_reward(state, delta_time)
 
-        terminated = state.is_evacuated
+        terminated = state.is_evacuated and not self.backend.has_pending_events
         truncated = not terminated and time_after >= self.max_time
 
         observation = self._make_observation(state)
@@ -224,7 +251,10 @@ class EvacuationEnv(gym.Env):
         observation.extend(
             congestion_counts[name] / n for name in self.congestion_region_names
         )
-
+        observation.extend((
+            float(state.active_incident == "B_connector"),
+            float(state.active_incident == "C_exit"),
+        ))
         return np.array(observation, dtype=np.float32)
 
     # ------------------------------------------------------------------
@@ -245,7 +275,8 @@ class EvacuationEnv(gym.Env):
             "elapsed_time": state.elapsed_time,
             "remaining_agents": state.remaining_agents,
             "population_name": self.current_population_name,
-            
+            "surge_room": self.current_surge_room,
+            "surge_time": self.current_surge_time,
         }
 
     # ------------------------------------------------------------------

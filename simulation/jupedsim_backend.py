@@ -30,7 +30,6 @@ class JuPedSimBackend:
         trajectory_path="integratedgym_evac.sqlite",
     ):
         self.scenario = scenario
-
         self.record = record
         self.trajectory_path = pathlib.Path(
             trajectory_path
@@ -38,6 +37,7 @@ class JuPedSimBackend:
 
         self.simulation = None
         self.writer = None
+        self.pending_events = []
 
         # --------------------------------------------------------------
         # JuPedSim targets
@@ -111,6 +111,7 @@ class JuPedSimBackend:
         self._close_writer()
         self._time_since_routing_check = 0.0    
         self.rng = np.random.default_rng(seed)
+        self.active_incident = None
 
         # --------------------------------------------------------------
         # Optional trajectory recording
@@ -272,57 +273,79 @@ class JuPedSimBackend:
             )
 
             self.assignments[agent_id] = None
-    def _spawn_network_agents(self,seed=None,):
-        """
-        Spawn pedestrians for a network scenario.
-
-        If room_counts is configured, generate a seeded crowd.
-
-        Otherwise fall back to one test pedestrian per room for
-        development/debugging.
-        """
-
-        if self.scenario.room_counts is not None:
-            positions_by_room = (self.scenario.generate_start_positions(seed=seed))
-
-        else:
-            positions_by_room = {
-                room_name: [position]
-                for room_name, position in self.scenario.test_positions.items()
-            }
+    def _spawn_network_agents(self, seed=None):
+        positions_by_room = self.scenario.generate_start_positions(seed=seed)
 
         self.initial_population = sum(
-            len(positions)
-            for positions in positions_by_room.values()
+            len(positions) for positions in positions_by_room.values()
         )
 
-        for (room_name,positions) in positions_by_room.items():
+        for room_name, positions in positions_by_room.items():
+            self._spawn_network_positions(room_name, positions)
 
-            initial_target = (self.scenario.initial_targets[room_name])
+        self.pending_events = [
+            {
+                "time": event["time"],
+                "room": event["room"],
+                "count": event["count"],
+                "triggered": False,
+                "incident": event.get("incident")
+            }
+            for event in self.scenario.dynamic_events
+        ]
+        initial_count = sum(len(positions) for positions in positions_by_room.values())
+        future_count = sum(event["count"] for event in self.pending_events)
+        self.initial_population = initial_count + future_count
 
-            journey_id, stage_id = (self.routes[initial_target])
+    # Returns all free spawn position in a room
+    def _get_free_spawn_positions(self, room_name, count):
+        candidates = self.scenario.generate_room_candidates(room_name)
 
-            for position in positions:
+        occupied = [
+            agent.position
+            for agent in self.simulation.agents()
+        ]
 
-                parameters = (
-                    jps.CollisionFreeSpeedModelAgentParameters(
-                        position=position,
-                        journey_id=journey_id,
-                        stage_id=stage_id,
-                    )
-                )
+        min_distance = self.scenario.spawn_spacing
 
-                agent_id = (
-                    self.simulation.add_agent(
-                        parameters
-                    )
-                )
+        free = []
 
-                self.assignments[agent_id] = initial_target
+        for position in candidates:
+            x, y = position
 
-                self.active_junctions[agent_id] = None
+            is_free = all(
+                (x - ax) ** 2 + (y - ay) ** 2 >= min_distance ** 2
+                for ax, ay in occupied
+            )
 
-                self.agent_origins[agent_id] = room_name
+            if is_free:
+                free.append(position)
+
+        if len(free) < count:
+            raise RuntimeError(
+                f"Dynamic event needs {count} free positions in Room {room_name}, "
+                f"but only {len(free)} are currently available."
+            )
+
+        indices = self.rng.choice(len(free), size=count, replace=False)
+
+        return [free[i] for i in indices]
+    def _spawn_network_positions(self, room_name, positions):
+        initial_target = self.scenario.initial_targets[room_name]
+        journey_id, stage_id = self.routes[initial_target]
+
+        for position in positions:
+            parameters = jps.CollisionFreeSpeedModelAgentParameters(
+                position=position,
+                journey_id=journey_id,
+                stage_id=stage_id,
+            )
+
+            agent_id = self.simulation.add_agent(parameters)
+
+            self.assignments[agent_id] = initial_target
+            self.active_junctions[agent_id] = None
+            self.agent_origins[agent_id] = room_name
     # ==================================================================
     # Guidance
     # ==================================================================
@@ -445,6 +468,36 @@ class JuPedSimBackend:
 
             self.current_guidance[junction] = target
 
+    @property
+    def has_pending_events(self):
+        return any(not event["triggered"] for event in self.pending_events)
+
+    # Trigger the dynamic events
+    def _trigger_due_events(self):
+
+        for event in self.pending_events:
+            if event["triggered"]:
+                continue
+
+            if self.elapsed_time < event["time"]:
+                continue
+            incident = event.get("incident")
+            if incident is not None:
+                self.simulation.switch_geometry(
+                    self.scenario.incident_geometries[incident]
+                )
+                self.active_incident = incident
+            positions = self._get_free_spawn_positions(
+                event["room"], event["count"]
+            )
+
+            self._spawn_network_positions(event["room"], positions)
+            event["triggered"] = True
+
+            # print(
+            #     f"[Dynamic event] t={self.elapsed_time:.2f}s | "
+            #     f"+{event['count']} agents in Room {event['room']}"
+            # )
     # ==================================================================
     # Time advancement
     # ==================================================================
@@ -459,13 +512,15 @@ class JuPedSimBackend:
         start_total = time.perf_counter()
 
         while self.elapsed_time < target_time:
-            if self.simulation.agent_count() == 0:
+            if self.simulation.agent_count() == 0 and not self.has_pending_events:
                 break
             time_before = self.elapsed_time
 
             start = time.perf_counter()
             self.simulation.iterate()
             iterate_time += time.perf_counter() - start
+
+            self._trigger_due_events()
 
             # Measure actual simulated time advanced by JuPedSim.
             dt = self.elapsed_time - time_before
@@ -624,6 +679,7 @@ class JuPedSimBackend:
             elapsed_time=(self.simulation.elapsed_time()),
             agents=agents,
             initial_population=(self.initial_population),
+            active_incident=(self.active_incident)
         )
 
     # ==================================================================

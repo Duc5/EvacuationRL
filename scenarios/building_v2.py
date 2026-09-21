@@ -17,33 +17,39 @@ class BuildingV2Scenario:
         C = east exit  (wide)
     """
 
-    def __init__(self,room_counts=None,spawn_spacing=0.65):
+    def __init__(self,room_counts=None,spawn_spacing=0.65,dynamic_events=None):
         self.routing_mode = "network"
         self.room_counts = room_counts
         self.spawn_spacing = spawn_spacing
+        self.dynamic_events = dynamic_events or []
         # ==============================================================
         # ROOMS
         # ==============================================================
 
         self.rooms = {
+            # Extend only north. A→J1 remains exactly where it is.
             "A": box(
                 9.0, 30.0,
-                15.0, 36.0,
+                15.0, 37.5,
             ),
 
+            # Extend only west. Both B→J3 and D→B connections stay unchanged.
             "B": box(
-                2.0, 10.0,
+                0.0, 10.0,
                 8.0, 15.0,
             ),
 
+            # Extend only east. C→J2 stays unchanged.
             "C": box(
                 10.0, 10.0,
-                16.0, 15.0,
+                18.0, 15.0,
             ),
 
+            # Extend sideways symmetrically.
+            # Both D→B north neck and D→ExitB south neck stay centred and unchanged.
             "D": box(
-                3.0, 3.0,
-                8.0, 8.0,
+                1.5, 3.0,
+                9.5, 8.0,
             ),
         }
 
@@ -242,22 +248,22 @@ class BuildingV2Scenario:
         self.spawn_regions = {
             "A": box(
                 9.75, 30.75,
-                14.25, 35.25,
+                14.25, 36.75,
             ),
 
             "B": box(
-                2.75, 10.75,
+                0.75, 10.75,
                 7.25, 14.25,
             ),
 
             "C": box(
                 10.75, 10.75,
-                15.25, 14.25,
+                17.25, 14.25,
             ),
 
             "D": box(
-                3.75, 3.75,
-                7.25, 7.25,
+                2.25, 3.75,
+                8.75, 7.25,
             ),
         }
         # Which room initially heads where
@@ -309,6 +315,18 @@ class BuildingV2Scenario:
             raise ValueError(
                 "BuildingV2 geometry is invalid."
             )
+        self.incident_geometries = {
+            "B_connector": (
+                self.geometry
+                .difference(box(4.5, 8.3, 5.2, 9.7))
+                .difference(box(5.8, 8.3, 6.5, 9.7))
+            ),
+            "C_exit": (
+                self.geometry
+                .difference(box(24.0, 24.0, 29.49, 24.65))
+                .difference(box(24.0, 25.35, 29.49, 26.0))
+            ),
+        }
 
     def generate_start_positions(self, seed=None):
         """
@@ -349,6 +367,26 @@ class BuildingV2Scenario:
 
         return positions_by_room
 
+    def generate_room_candidates(self, room_name):
+        region = self.spawn_regions[room_name]
+        min_x, min_y, max_x, max_y = region.bounds
+
+        positions = []
+
+        y = min_y
+        while y <= max_y:
+            x = min_x
+            while x <= max_x:
+                point = Point(x, y)
+
+                if region.covers(point):
+                    positions.append((x, y))
+
+                x += self.spawn_spacing
+
+            y += self.spawn_spacing
+
+        return positions
 
     def _generate_spawn_candidates(self, region):
         """
