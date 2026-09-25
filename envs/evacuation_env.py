@@ -34,7 +34,7 @@ class EvacuationEnv(gym.Env):
         dynamic_surge_rooms=None,
         dynamic_surge_times=None,
         dynamic_surge_count=0,
-        incident=None
+        incidents=None
     ):
         super().__init__()
 
@@ -42,6 +42,7 @@ class EvacuationEnv(gym.Env):
             raise ValueError(
                 "EvacuationEnv now supports network-routing scenarios only."
             )
+        
 
         self.scenario = scenario
         self.control_interval = control_interval
@@ -56,9 +57,13 @@ class EvacuationEnv(gym.Env):
         self.dynamic_surge_rooms = dynamic_surge_rooms
         self.dynamic_surge_times = dynamic_surge_times
         self.dynamic_surge_count = dynamic_surge_count
-        self.incident = incident
+        self.incidents = tuple(incidents) if incidents else ()
         self.current_surge_room = None
         self.current_surge_time = None
+        self.current_incident = None
+        for incident in self.incidents:
+            if incident not in self.scenario.incident_geometries:
+                raise ValueError(f"Unknown incident: {incident}")
         self.backend = JuPedSimBackend(
             scenario=scenario,
             record=record,
@@ -143,16 +148,21 @@ class EvacuationEnv(gym.Env):
 
             self.current_surge_room = self.dynamic_surge_rooms[room_index]
             self.current_surge_time = self.dynamic_surge_times[time_index]
-
+            if self.incidents:
+                self.current_incident = self.np_random.choice(self.incidents)
+            else:
+                self.current_incident = None
+            # print(f"Chosen incident is {self.current_incident}")
             self.scenario.dynamic_events = [{
                 "time": self.current_surge_time,
                 "room": self.current_surge_room,
                 "count": self.dynamic_surge_count,
-                "incident": self.incident
+                "incident": self.current_incident
             }]
         else:
             self.current_surge_room = None
             self.current_surge_time = None
+            self.current_incident = None
 
         state = self.backend.reset(seed=backend_seed)
 
@@ -277,6 +287,7 @@ class EvacuationEnv(gym.Env):
             "population_name": self.current_population_name,
             "surge_room": self.current_surge_room,
             "surge_time": self.current_surge_time,
+            "active_incident":state.active_incident
         }
 
     # ------------------------------------------------------------------
