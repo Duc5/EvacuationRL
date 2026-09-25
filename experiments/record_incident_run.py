@@ -1,26 +1,32 @@
 from pathlib import Path
 
+from shapely.geometry import Point, box
+
 from scenarios.building_v2 import BuildingV2Scenario
 from envs.evacuation_env import EvacuationEnv
 
 
 INITIAL_COUNTS = {"A": 40, "B": 20, "C": 20, "D": 20}
 
-INCIDENT = "C_exit"   # or "C_exit"
+INCIDENT = "top_loop"
 SURGE_TIME = 10.0
 SURGE_ROOM = "C"
 SURGE_COUNT = 40
 
 PRE_POLICY = "CCA"
-POST_POLICY = "CJ3A"      # good response for B_connector
+POST_POLICY = "CCA"
 
-CONTROL_INTERVAL = 10.0
+# Small interval ONLY for this diagnostic so we do not miss crossings.
+CONTROL_INTERVAL = 0.1
 MAX_TIME = 180.0
 SEED = 0
 
 TRAJECTORY_PATH = Path(
     f"trajectories/debug_{INCIDENT}.sqlite"
 )
+
+# Entire Room D <-> Room B connector.
+B_CONNECTOR_REGION = box(4.5, 8.0, 6.5, 10.0)
 
 
 def short_policy(policy):
@@ -64,24 +70,47 @@ def main():
 
     terminated = False
     truncated = False
-    step = 0
 
+    agents_seen_in_connector = set()
+    max_connector_occupancy = 0
+    ep_reward =0
     while not terminated and not truncated:
-        action = pre_action if step == 0 else post_action
-
-        obs, reward, terminated, truncated, info = env.step(action)
-
-        print(
-            f"t={info['elapsed_time']:6.2f} | "
-            f"remaining={info['remaining_agents']:3d} | "
-            f"incident={env.backend.active_incident} | "
-            f"policy={PRE_POLICY if step == 0 else POST_POLICY}"
+        # Keep CCA until the incident time, then switch to CJ3A.
+        action = (
+            pre_action
+            if info["elapsed_time"] < SURGE_TIME
+            else post_action
         )
 
-        step += 1
+        obs, reward, terminated, truncated, info = env.step(action)
+        
+        state = env.backend.get_state()
+
+        agents_in_connector = []
+
+        for agent in state.agents:
+            if B_CONNECTOR_REGION.covers(Point(agent.position)):
+                agents_in_connector.append(agent.id)
+                agents_seen_in_connector.add(agent.id)
+
+        max_connector_occupancy = max(
+            max_connector_occupancy,
+            len(agents_in_connector),
+        )
+        ep_reward+=reward
+
+        # Only print when somebody is actually there.
+        if agents_in_connector:
+            print(
+                f"t={info['elapsed_time']:6.2f} | "
+                f"connector occupancy={len(agents_in_connector):2d} | "
+                f"agents={agents_in_connector}"
+            )
+
 
     print()
     print(f"Finished at t={info['elapsed_time']:.2f}s")
+    print(f"Ep reward:{ep_reward}")
     print(f"Remaining: {info['remaining_agents']}")
 
     env.close()

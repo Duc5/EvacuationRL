@@ -15,18 +15,18 @@ SURGE_ROOM = "C"
 SURGE_TIME = 10.0
 SURGE_COUNT = 40
 
-INCIDENTS = ["B_connector", "C_exit"]
+INCIDENTS = ["A_exit", "C_exit","top_loop","bottom_loop"]
 
 PRE_POLICY = "CCA"
 
-SEED = 1
+SEED = 0
 CONTROL_INTERVAL = 10.0
 MAX_TIME = 180.0
 MAX_WORKERS = 11
 
 # Result from the fixed-policy sweep you just ran.
-STATIC_BASELINE_POLICY = "CJ3A"
-STATIC_BASELINE_MEAN = 71.47
+STATIC_BASELINE_POLICY = "ACB"
+STATIC_BASELINE_MEAN = 78.62
 
 OUTPUT_PATH = Path(
     "results/incident_one_switch_"
@@ -268,7 +268,7 @@ def main():
     # ---------------------------------------------------------
 
     print(
-        "\n===== BEST CCA-FIRST POLICY PER INCIDENT ====="
+        f"\n===== BEST {PRE_POLICY}-FIRST POLICY PER INCIDENT ====="
     )
 
     best_by_incident = {}
@@ -334,7 +334,7 @@ def main():
     # ---------------------------------------------------------
 
     print(
-        "\n===== BEST EVENT-BLIND CCA-FIRST POLICIES ====="
+        f"\n===== BEST EVENT-BLIND {PRE_POLICY}-FIRST POLICIES ====="
     )
 
     summaries = []

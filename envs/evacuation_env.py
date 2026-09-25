@@ -106,7 +106,7 @@ class EvacuationEnv(gym.Env):
             + len(self.exit_names)
             + len(self.junction_names)
             + len(self.exit_names)
-            + 3
+            + 5
         )
         self.observation_space = spaces.Box(
             low=0.0,
@@ -262,8 +262,10 @@ class EvacuationEnv(gym.Env):
             congestion_counts[name] / n for name in self.congestion_region_names
         )
         observation.extend((
-            float(state.active_incident == "B_connector"),
+            float(state.active_incident == "A_exit"),
             float(state.active_incident == "C_exit"),
+            float(state.active_incident == "top_loop"),
+            float(state.active_incident == "bottom_loop"),
         ))
         return np.array(observation, dtype=np.float32)
 

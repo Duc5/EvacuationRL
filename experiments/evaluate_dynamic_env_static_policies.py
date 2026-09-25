@@ -10,14 +10,14 @@ INITIAL_COUNTS = {"A": 40, "B": 20, "C": 20, "D": 20}
 SURGE_ROOM = "C"
 SURGE_TIME = 10.0
 SURGE_COUNT = 40
-INCIDENTS = ["B_connector","C_exit"]
+INCIDENTS = ["A_exit","C_exit","top_loop","bottom_loop"]
 
 SEED = 0
 CONTROL_INTERVAL = 10.0
 MAX_TIME = 180.0
 MAX_WORKERS = 11
 
-OUTPUT_PATH = Path("results/incident_static_A40_B20_C20_D20_Csurge40_t10_seed0.csv")
+OUTPUT_PATH = Path("results/v3b_static_A40_B20_C20_D20_Csurge40_t10_seed0.csv")
 
 def short_policy(policy):
     return "".join(policy[j] for j in ["J1", "J2", "J3"])
@@ -232,7 +232,13 @@ def main():
             f"reward={result['mean_reward']:7.4f}"
         )
 
+    if not summaries:
+        raise RuntimeError(
+            "No static policy completed successfully under all incidents."
+        )
+
     robust = summaries[0]
+
     if len(oracle_times) == len(INCIDENTS):
         oracle_mean = sum(oracle_times) / len(oracle_times)
         print(f"\nOracle per-incident mean: {oracle_mean:.2f}s")
@@ -249,9 +255,9 @@ def main():
         f"Best robust fixed policy: {robust['policy']} "
         f"({robust['mean_time']:.2f}s mean)"
     )
-    print(f"Oracle per-incident mean: {oracle_mean:.2f}s")
+    print(f"Best condition-specific fixed mean: {oracle_mean:.2f}s")
     print(
-        f"Static adaptation headroom: "
+        f"Condition specific fixed headroom: "
         f"{improvement:.2f}s ({improvement_pct:.1f}%)"
     )
 

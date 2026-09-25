@@ -316,15 +316,31 @@ class BuildingV2Scenario:
                 "BuildingV2 geometry is invalid."
             )
         self.incident_geometries = {
-            "B_connector": (
+            # Narrow Exit A approach from 1.2 m to 0.7 m.
+            # Keep the actual exit stage (-2.0 to -1.5) untouched.
+            "A_exit": (
                 self.geometry
-                .difference(box(4.5, 8.3, 5.2, 9.7))
-                .difference(box(5.8, 8.3, 6.5, 9.7))
+                .difference(box(-1.49, 24.4, 0.0, 24.65))
+                .difference(box(-1.49, 25.35, 0.0, 25.6))
             ),
+
+            # Narrow Exit C approach from 2.0 m to 0.7 m.
             "C_exit": (
                 self.geometry
                 .difference(box(24.0, 24.0, 29.49, 24.65))
                 .difference(box(24.0, 25.35, 29.49, 26.0))
+            ),
+
+            # Complete obstruction across the upper branch of the loop.
+            "top_loop": (
+                self.geometry
+                .difference(box(16.0, 23.0, 16.05, 27.0))
+            ),
+
+            # Complete obstruction across the lower branch of the loop.
+            "bottom_loop": (
+                self.geometry
+                .difference(box(14.5, 17.0, 14.55, 19.0))
             ),
         }
 
