@@ -38,6 +38,11 @@ class JuPedSimBackend:
         self.simulation = None
         self.writer = None
         self.pending_events = []
+        self.active_incident = None
+        self.geometry_switch_pending = False
+        self.geometry_switch_delay = None
+        self.geometry_switch_attempts = 0
+        self.geometry_switch_blocking_agents = ()
 
         # --------------------------------------------------------------
         # JuPedSim targets
@@ -112,7 +117,10 @@ class JuPedSimBackend:
         self._time_since_routing_check = 0.0    
         self.rng = np.random.default_rng(seed)
         self.active_incident = None
-
+        self.geometry_switch_pending = False
+        self.geometry_switch_delay = None
+        self.geometry_switch_attempts = 0
+        self.geometry_switch_blocking_agents = ()
         # --------------------------------------------------------------
         # Optional trajectory recording
         # --------------------------------------------------------------
@@ -289,10 +297,12 @@ class JuPedSimBackend:
                 "room": event["room"],
                 "count": event["count"],
                 "triggered": False,
-                "incident": event.get("incident")
+                "incident": event.get("incident"),
+                "geometry_applied": event.get("incident") is None,
+                "geometry_applied_time": None,
             }
             for event in self.scenario.dynamic_events
-        ]
+]
         initial_count = sum(len(positions) for positions in positions_by_room.values())
         future_count = sum(event["count"] for event in self.pending_events)
         self.initial_population = initial_count + future_count
@@ -470,34 +480,110 @@ class JuPedSimBackend:
 
     @property
     def has_pending_events(self):
-        return any(not event["triggered"] for event in self.pending_events)
+        return any(
+            not event["triggered"]
+            or (
+                event.get("incident") is not None
+                and not event["geometry_applied"]
+            )
+            for event in self.pending_events
+        )
+    def _try_apply_incident_geometry(self, event):
+        incident = event["incident"]
+        geometry = self.scenario.incident_geometries[incident]
 
+        self.geometry_switch_attempts += 1
+
+        blocking_agents = []
+
+        for agent in self.simulation.agents():
+            point = Point(agent.position)
+
+            if not geometry.covers(point):
+                blocking_agents.append(agent.id)
+
+        self.geometry_switch_blocking_agents = tuple(blocking_agents)
+
+        if blocking_agents:
+            self.geometry_switch_pending = True
+            return False
+
+        try:
+            self.simulation.switch_geometry(geometry)
+
+        except RuntimeError as exc:
+            message = str(exc)
+
+            # Only defer the specific JuPedSim failure caused by agents
+            # lying outside the proposed new geometry.
+            if (
+                "Could not switch the geometry" in message
+                and "outside of the new geometry" in message
+            ):
+                self.geometry_switch_pending = True
+                return False
+
+            # Any unrelated JuPedSim error should still crash loudly.
+            raise
+
+        event["geometry_applied"] = True
+        event["geometry_applied_time"] = self.elapsed_time
+
+        self.geometry_switch_pending = False
+        self.geometry_switch_delay = (
+            self.elapsed_time - event["time"]
+        )
+        self.geometry_switch_blocking_agents = ()
+
+        return True
     # Trigger the dynamic events
     def _trigger_due_events(self):
-
         for event in self.pending_events:
-            if event["triggered"]:
-                continue
-
             if self.elapsed_time < event["time"]:
                 continue
+
             incident = event.get("incident")
-            if incident is not None:
-                self.simulation.switch_geometry(
-                    self.scenario.incident_geometries[incident]
+
+            # ----------------------------------------------------------
+            # First time this event becomes due:
+            # announce incident + spawn surge exactly once.
+            # ----------------------------------------------------------
+
+            if not event["triggered"]:
+                if incident is not None:
+                    self.active_incident = incident
+                    self.geometry_switch_pending = True
+
+                # Try the geometry immediately.
+                # If occupied, this simply leaves it pending.
+                if (
+                    incident is not None
+                    and not event["geometry_applied"]
+                ):
+                    self._try_apply_incident_geometry(event)
+
+                positions = self._get_free_spawn_positions(
+                    event["room"],
+                    event["count"],
                 )
-                self.active_incident = incident
-            positions = self._get_free_spawn_positions(
-                event["room"], event["count"]
-            )
 
-            self._spawn_network_positions(event["room"], positions)
-            event["triggered"] = True
+                self._spawn_network_positions(
+                    event["room"],
+                    positions,
+                )
 
-            # print(
-            #     f"[Dynamic event] t={self.elapsed_time:.2f}s | "
-            #     f"+{event['count']} agents in Room {event['room']}"
-            # )
+                event["triggered"] = True
+
+            # ----------------------------------------------------------
+            # Event already happened, but physical closure was unsafe.
+            # Retry every simulation iteration until it succeeds.
+            # ----------------------------------------------------------
+
+            elif (
+                incident is not None
+                and not event["geometry_applied"]
+            ):
+                self._try_apply_incident_geometry(event)
     # ==================================================================
     # Time advancement
     # ==================================================================

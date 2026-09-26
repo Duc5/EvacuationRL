@@ -1,4 +1,4 @@
-"""Evaluate CCA-first timed switching under B/C capacity incidents."""
+"""Evaluate CCA-first timed switching under incidents."""
 
 import csv
 import multiprocessing as mp
@@ -25,12 +25,12 @@ MAX_TIME = 180.0
 MAX_WORKERS = 11
 
 # Result from the fixed-policy sweep you just ran.
-STATIC_BASELINE_POLICY = "ACB"
-STATIC_BASELINE_MEAN = 78.62
+STATIC_BASELINE_POLICY = "CJ3A"
+STATIC_BASELINE_MEAN = 79.64
 
 OUTPUT_PATH = Path(
-    "results/incident_one_switch_"
-    "A40_B20_C20_D20_Csurge40_t10_seed1.csv"
+    f"results/incident_one_switch_"
+    f"A40_B20_C20_D20_Csurge40_t10_seed{SEED}.csv"
 )
 
 

@@ -1,0 +1,88 @@
+===== V3-B INCIDENT GEOMETRY SWITCH SAFETY AUDIT =====
+
+Seeds tested: 50
+Actions tested: 35
+Incidents tested: 3
+Total cases: 5250
+
+Passes: 5250
+Failures: 0
+Immediate switches: 5210
+Deferred switches: 40
+Pending > 5.0s: 0
+Other errors: 0
+
+===== DEFERRED SWITCH TIMING =====
+Mean additional wait: 0.0315s
+Max additional wait:  0.0600s
+Mean delay from scheduled t=10: 0.0315s
+Max delay from scheduled t=10:  0.0600s
+
+===== PER-INCIDENT RESULTS =====
+C_exit             | pass=1750/1750 | immediate=1750 | deferred=  0 | fail=  0 | pending=  0 | mean_wait=      -s | max_wait=      -s
+B_route_08         | pass=1750/1750 | immediate=1750 | deferred=  0 | fail=  0 | pending=  0 | mean_wait=      -s | max_wait=      -s
+bottom_loop_left   | pass=1750/1750 | immediate=1710 | deferred= 40 | fail=  0 | pending=  0 | mean_wait= 0.0315s | max_wait= 0.0600s
+
+===== DEFERRED SWITCHES =====
+bottom_loop_left   | seed=17 | action= 2 | policy=ACJ2   | wait=0.0100s | scheduled_delay=0.0100s | attempts=  2 | initial_agents=44160
+bottom_loop_left   | seed=20 | action= 2 | policy=ACJ2   | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=54081
+bottom_loop_left   | seed=17 | action= 6 | policy=AJ1J2  | wait=0.0100s | scheduled_delay=0.0100s | attempts=  2 | initial_agents=46260
+bottom_loop_left   | seed=20 | action= 6 | policy=AJ1J2  | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=46801
+bottom_loop_left   | seed= 5 | action= 8 | policy=AJ3B   | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=48929
+bottom_loop_left   | seed=29 | action= 8 | policy=AJ3B   | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=53833
+bottom_loop_left   | seed=31 | action= 8 | policy=AJ3B   | wait=0.0200s | scheduled_delay=0.0200s | attempts=  3 | initial_agents=47804
+bottom_loop_left   | seed=45 | action= 8 | policy=AJ3B   | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=49627
+bottom_loop_left   | seed=38 | action= 9 | policy=AJ3J1  | wait=0.0600s | scheduled_delay=0.0600s | attempts=  7 | initial_agents=48366
+bottom_loop_left   | seed=43 | action= 9 | policy=AJ3J1  | wait=0.0600s | scheduled_delay=0.0600s | attempts=  7 | initial_agents=48930
+bottom_loop_left   | seed=17 | action=10 | policy=AJ3A   | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=49210
+bottom_loop_left   | seed=25 | action=10 | policy=AJ3A   | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=48926
+bottom_loop_left   | seed=17 | action=13 | policy=CCJ2   | wait=0.0100s | scheduled_delay=0.0100s | attempts=  2 | initial_agents=53680
+bottom_loop_left   | seed=20 | action=13 | policy=CCJ2   | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=51701
+bottom_loop_left   | seed=17 | action=17 | policy=CJ1J2  | wait=0.0100s | scheduled_delay=0.0100s | attempts=  2 | initial_agents=54100
+bottom_loop_left   | seed=20 | action=17 | policy=CJ1J2  | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=53101
+bottom_loop_left   | seed= 5 | action=19 | policy=CJ3B   | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=55089
+bottom_loop_left   | seed=29 | action=19 | policy=CJ3B   | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=60553
+bottom_loop_left   | seed=31 | action=19 | policy=CJ3B   | wait=0.0200s | scheduled_delay=0.0200s | attempts=  3 | initial_agents=55504
+bottom_loop_left   | seed=45 | action=19 | policy=CJ3B   | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=55367
+bottom_loop_left   | seed=38 | action=20 | policy=CJ3J1  | wait=0.0600s | scheduled_delay=0.0600s | attempts=  7 | initial_agents=56206
+bottom_loop_left   | seed=43 | action=20 | policy=CJ3J1  | wait=0.0600s | scheduled_delay=0.0600s | attempts=  7 | initial_agents=58870
+bottom_loop_left   | seed=17 | action=21 | policy=CJ3A   | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=65590
+bottom_loop_left   | seed=25 | action=21 | policy=CJ3A   | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=56346
+bottom_loop_left   | seed=17 | action=24 | policy=J2CJ2  | wait=0.0100s | scheduled_delay=0.0100s | attempts=  2 | initial_agents=67400
+bottom_loop_left   | seed=20 | action=24 | policy=J2CJ2  | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=59821
+bottom_loop_left   | seed= 5 | action=26 | policy=J2J3B  | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=58449
+bottom_loop_left   | seed=29 | action=26 | policy=J2J3B  | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=59433
+bottom_loop_left   | seed=31 | action=26 | policy=J2J3B  | wait=0.0200s | scheduled_delay=0.0200s | attempts=  3 | initial_agents=63204
+bottom_loop_left   | seed=45 | action=26 | policy=J2J3B  | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=62087
+bottom_loop_left   | seed=17 | action=27 | policy=J2J3A  | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=65310
+bottom_loop_left   | seed=25 | action=27 | policy=J2J3A  | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=59986
+bottom_loop_left   | seed=17 | action=29 | policy=J3CJ2  | wait=0.0100s | scheduled_delay=0.0100s | attempts=  2 | initial_agents=70480
+bottom_loop_left   | seed=20 | action=29 | policy=J3CJ2  | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=64301
+bottom_loop_left   | seed= 5 | action=33 | policy=J3J3B  | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=63489
+bottom_loop_left   | seed=29 | action=33 | policy=J3J3B  | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=63353
+bottom_loop_left   | seed=31 | action=33 | policy=J3J3B  | wait=0.0200s | scheduled_delay=0.0200s | attempts=  3 | initial_agents=64044
+bottom_loop_left   | seed=45 | action=33 | policy=J3J3B  | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=67687
+bottom_loop_left   | seed=17 | action=34 | policy=J3J3A  | wait=0.0300s | scheduled_delay=0.0300s | attempts=  4 | initial_agents=63490
+bottom_loop_left   | seed=25 | action=34 | policy=J3J3A  | wait=0.0400s | scheduled_delay=0.0400s | attempts=  5 | initial_agents=63486
+
+===== DEFERRED SWITCHES GROUPED BY ACTION =====
+
+bottom_loop_left
+  action= 2 policy=ACJ2   deferred= 2 mean_wait=0.0250s max_wait=0.0400s seeds=[17,20]
+  action= 6 policy=AJ1J2  deferred= 2 mean_wait=0.0250s max_wait=0.0400s seeds=[17,20]
+  action= 8 policy=AJ3B   deferred= 4 mean_wait=0.0275s max_wait=0.0300s seeds=[5,29,31,45]
+  action= 9 policy=AJ3J1  deferred= 2 mean_wait=0.0600s max_wait=0.0600s seeds=[38,43]
+  action=10 policy=AJ3A   deferred= 2 mean_wait=0.0350s max_wait=0.0400s seeds=[17,25]
+  action=13 policy=CCJ2   deferred= 2 mean_wait=0.0250s max_wait=0.0400s seeds=[17,20]
+  action=17 policy=CJ1J2  deferred= 2 mean_wait=0.0250s max_wait=0.0400s seeds=[17,20]
+  action=19 policy=CJ3B   deferred= 4 mean_wait=0.0275s max_wait=0.0300s seeds=[5,29,31,45]
+  action=20 policy=CJ3J1  deferred= 2 mean_wait=0.0600s max_wait=0.0600s seeds=[38,43]
+  action=21 policy=CJ3A   deferred= 2 mean_wait=0.0350s max_wait=0.0400s seeds=[17,25]
+  action=24 policy=J2CJ2  deferred= 2 mean_wait=0.0250s max_wait=0.0400s seeds=[17,20]
+  action=26 policy=J2J3B  deferred= 4 mean_wait=0.0275s max_wait=0.0300s seeds=[5,29,31,45]
+  action=27 policy=J2J3A  deferred= 2 mean_wait=0.0350s max_wait=0.0400s seeds=[17,25]
+  action=29 policy=J3CJ2  deferred= 2 mean_wait=0.0250s max_wait=0.0400s seeds=[17,20]
+  action=33 policy=J3J3B  deferred= 4 mean_wait=0.0275s max_wait=0.0300s seeds=[5,29,31,45]
+  action=34 policy=J3J3A  deferred= 2 mean_wait=0.0350s max_wait=0.0400s seeds=[17,25]
+
+NO GEOMETRY-SWITCH FAILURES FOUND IN THE TESTED CASES.

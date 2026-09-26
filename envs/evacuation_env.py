@@ -106,7 +106,8 @@ class EvacuationEnv(gym.Env):
             + len(self.exit_names)
             + len(self.junction_names)
             + len(self.exit_names)
-            + 5
+            + 1
+            + len(self.incidents)
         )
         self.observation_space = spaces.Box(
             low=0.0,
@@ -261,12 +262,10 @@ class EvacuationEnv(gym.Env):
         observation.extend(
             congestion_counts[name] / n for name in self.congestion_region_names
         )
-        observation.extend((
-            float(state.active_incident == "A_exit"),
-            float(state.active_incident == "C_exit"),
-            float(state.active_incident == "top_loop"),
-            float(state.active_incident == "bottom_loop"),
-        ))
+        observation.extend(
+            float(state.active_incident == incident)
+            for incident in self.incidents
+        )
         return np.array(observation, dtype=np.float32)
 
     # ------------------------------------------------------------------
@@ -289,7 +288,15 @@ class EvacuationEnv(gym.Env):
             "population_name": self.current_population_name,
             "surge_room": self.current_surge_room,
             "surge_time": self.current_surge_time,
-            "active_incident":state.active_incident
+            "active_incident": state.active_incident,
+            "geometry_switch_pending":
+                self.backend.geometry_switch_pending,
+            "geometry_switch_delay":
+                self.backend.geometry_switch_delay,
+            "geometry_switch_attempts":
+                self.backend.geometry_switch_attempts,
+            "geometry_switch_blocking_agents":
+                self.backend.geometry_switch_blocking_agents,
         }
 
     # ------------------------------------------------------------------

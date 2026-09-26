@@ -8,7 +8,7 @@ from scenarios.building_v2 import BuildingV2Scenario
 from envs.evacuation_env import EvacuationEnv
 from pathlib import Path
 
-MODEL_PATH = Path("models/ppo_incident_v1.zip")
+MODEL_PATH = Path("models/ppo_threeway_incident_v3b.zip")
 
 SEED = 0
 
@@ -18,7 +18,7 @@ SURGE_ROOM = "C"
 SURGE_TIME = 10.0
 SURGE_COUNT = 40
 
-INCIDENTS = ["B_connector","C_exit",]
+INCIDENTS = ["C_exit","B_route_08","bottom_loop_left"]
 
 CONTROL_INTERVAL = 10.0
 MAX_TIME = 180.0
@@ -76,7 +76,7 @@ def main():
         )
     checkpoint_callback = CheckpointCallback(
         save_freq=2048,
-        save_path=f"models/incident_ppo_checkpoints",
+        save_path=f"models/incident_threeway_ppo_checkpoints",
         name_prefix="ppo_incident",
         verbose=2
     )
