@@ -10,7 +10,7 @@ INITIAL_COUNTS = {"A": 40, "B": 20, "C": 20, "D": 20}
 SURGE_ROOM = "C"
 SURGE_TIME = 10.0
 SURGE_COUNT = 40
-INCIDENTS = ["B_connector","C_exit"]
+INCIDENTS = ["C_exit","B_route_08","bottom_loop_left"]
 
 SEED = 0
 CONTROL_INTERVAL = 10.0
