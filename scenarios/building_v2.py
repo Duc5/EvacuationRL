@@ -338,10 +338,18 @@ class BuildingV2Scenario:
             ),
 
             # Complete obstruction across the lower branch of the loop.
-            "bottom_loop": (
+            "bottom_loop_right": (
                 self.geometry
                 .difference(box(14.5, 17.0, 14.55, 19.0))
             ),
+            "bottom_loop_left": (
+                self.geometry
+                .difference(box(8.5, 17.0, 8.55, 19.0))
+            ),
+            "B_route_08": self.geometry.difference(
+                box(4.5, 8.15, 5.7, 9.85)
+            ),
+            "None": []
         }
 
     def generate_start_positions(self, seed=None):

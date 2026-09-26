@@ -8,7 +8,7 @@ from envs.evacuation_env import EvacuationEnv
 
 INITIAL_COUNTS = {"A": 40, "B": 20, "C": 20, "D": 20}
 
-INCIDENT = "top_loop"
+INCIDENT = "B_route_08"
 SURGE_TIME = 10.0
 SURGE_ROOM = "C"
 SURGE_COUNT = 40

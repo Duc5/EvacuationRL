@@ -15,7 +15,7 @@ SURGE_ROOM = "C"
 SURGE_TIME = 10.0
 SURGE_COUNT = 40
 
-INCIDENTS = ["A_exit", "C_exit","top_loop","bottom_loop"]
+INCIDENTS = ["C_exit","B_route_08","bottom_loop_left"]
 
 PRE_POLICY = "CCA"
 
