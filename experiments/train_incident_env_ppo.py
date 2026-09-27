@@ -23,7 +23,7 @@ INCIDENTS = ["C_exit","B_route_08","bottom_loop_left"]
 CONTROL_INTERVAL = 10.0
 MAX_TIME = 180.0
 
-TOTAL_TIMESTEPS = 8192
+TOTAL_TIMESTEPS = 16384
 
 
 def make_env():

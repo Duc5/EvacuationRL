@@ -34,7 +34,8 @@ class EvacuationEnv(gym.Env):
         dynamic_surge_rooms=None,
         dynamic_surge_times=None,
         dynamic_surge_count=0,
-        incidents=None
+        incidents=None,
+        forced_incident=None,
     ):
         super().__init__()
 
@@ -57,7 +58,18 @@ class EvacuationEnv(gym.Env):
         self.dynamic_surge_rooms = dynamic_surge_rooms
         self.dynamic_surge_times = dynamic_surge_times
         self.dynamic_surge_count = dynamic_surge_count
-        self.incidents = tuple(incidents) if incidents else ()
+        self.incidents = incidents
+        self.forced_incident = forced_incident
+
+        if (
+            self.forced_incident is not None
+            and self.forced_incident not in self.incidents
+        ):
+            raise ValueError(
+                f"Forced incident {self.forced_incident} "
+                f"not in incidents {self.incidents}"
+            )
+
         self.current_surge_room = None
         self.current_surge_time = None
         self.current_incident = None
@@ -140,7 +152,13 @@ class EvacuationEnv(gym.Env):
 
         else:
             self.current_population_name = None
-            backend_seed = seed
+
+            if seed is not None:
+                backend_seed = seed
+            else:
+                backend_seed = int(
+                    self.np_random.integers(0, 2**31 - 1)
+                )
 
         # Take a random surge room or surge time to add to environment
         if self.dynamic_surge_rooms and self.dynamic_surge_times:
@@ -149,7 +167,9 @@ class EvacuationEnv(gym.Env):
 
             self.current_surge_room = self.dynamic_surge_rooms[room_index]
             self.current_surge_time = self.dynamic_surge_times[time_index]
-            if self.incidents:
+            if self.forced_incident is not None:
+                self.current_incident = self.forced_incident
+            elif self.incidents:
                 self.current_incident = self.np_random.choice(self.incidents)
             else:
                 self.current_incident = None

@@ -11,15 +11,15 @@ from stable_baselines3 import PPO
 from scenarios.building_v2 import BuildingV2Scenario
 from envs.evacuation_env import EvacuationEnv
 
-
+STEPSIZE = 16384
 MODEL_PATH = Path(
-    "models/incident_ppo_checkpoints/ppo_incident_24576_steps.zip"
+    f"models/incident_threeway_ppo_4env_checkpoints/ppo_incident_4env_{STEPSIZE}_steps.zip"
     # "models/ppo_incident_v1.zip"
     # "models/incident_ppo_checkpoints/ppo_incident_26624_steps.zip"
 )
 
 OUTPUT_PATH = Path(
-    "results/incident_ppo_eval_24576_steps_seeds5-14.csv"
+    f"results/incident_threeway_ppo_4env_eval_{STEPSIZE}_steps_seeds5-14.csv"
 )
 
 INITIAL_COUNTS = {
@@ -33,12 +33,10 @@ SURGE_ROOM = "C"
 SURGE_TIME = 10.0
 SURGE_COUNT = 40
 
-INCIDENTS = [
-    "B_connector",
-    "C_exit",
-]
+INCIDENTS = ["C_exit","B_route_08","bottom_loop_left"]
 
-SEEDS = range(5, 15)
+
+SEEDS = range(5, 14)
 
 CONTROL_INTERVAL = 10.0
 MAX_TIME = 180.0
@@ -46,11 +44,11 @@ MAX_TIME = 180.0
 ROBUST_FIXED_POLICY = "CJ3A"
 EVENT_BLIND_POST_POLICY = "AJ1B"
 
-ORACLE_POST_POLICIES = {
-    "B_connector": "CJ3A",
+INCIDENT_AWARE_POST_POLICIES = {
     "C_exit": "AJ3B",
+    "B_route_08": "CJ3A",
+    "bottom_loop_left": "ACB",
 }
-
 
 def short_policy(policy):
     return "".join(
@@ -71,12 +69,13 @@ def make_env(incident):
         dynamic_surge_rooms=[SURGE_ROOM],
         dynamic_surge_times=[SURGE_TIME],
         dynamic_surge_count=SURGE_COUNT,
-        incidents=[incident],
+        incidents=INCIDENTS,
+        forced_incident=incident
     )
 
 
 def get_policy_mapping():
-    env = make_env("B_connector")
+    env = make_env("C_exit")
 
     labels = [
         short_policy(policy)
@@ -138,7 +137,7 @@ def run_episode(
                     action = action_map["CCA"]
                 else:
                     action = action_map[
-                        ORACLE_POST_POLICIES[incident]
+                        INCIDENT_AWARE_POST_POLICIES[incident]
                     ]
 
             else:
@@ -167,19 +166,16 @@ def run_episode(
             # The incident occurs during the first 10-second step.
             # Check that PPO can actually observe it afterward.
             if step_number == 0 and not terminated:
-                expected_flags = (
-                    np.array([1.0, 0.0])
-                    if incident == "B_connector"
-                    else np.array([0.0, 1.0])
-                )
+                expected_flags = {
+                    "C_exit": np.array([1.0, 0.0, 0.0]),
+                    "B_route_08": np.array([0.0, 1.0, 0.0]),
+                    "bottom_loop_left": np.array([0.0, 0.0, 1.0]),
+                }[incident]
 
-                if not np.allclose(
-                    obs[-2:],
-                    expected_flags,
-                ):
+                if not np.allclose(obs[-3:], expected_flags):
                     raise RuntimeError(
                         f"{incident}: expected flags "
-                        f"{expected_flags}, got {obs[-2:]}"
+                        f"{expected_flags}, got {obs[-3:]}"
                     )
 
             step_number += 1
@@ -288,6 +284,8 @@ def main():
                     f"{row['first_action']} -> "
                     f"{row['first_post_action']}"
                 )
+                if controller == "ppo":
+                    print("   TRACE:", row["action_trace"])
 
                 if row["error"]:
                     print(
