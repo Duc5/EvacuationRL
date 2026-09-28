@@ -19,9 +19,9 @@ INITIAL_COUNTS = {
     "D": 20,
 }
 
-SURGE_ROOM = "C"
+SURGE_ROOMS = ["A", "B", "C", "D"]
+SURGE_COUNTS = [20, 30, 40]
 SURGE_TIME = 10.0
-SURGE_COUNT = 40
 
 INCIDENTS = [
     "C_exit",
@@ -32,21 +32,18 @@ INCIDENTS = [
 CONTROL_INTERVAL = 10.0
 MAX_TIME = 180.0
 
-N_ENVS = 4
-
-# 4 envs × 64 steps = 256 rollout samples,
-# matching the old 1 env × 256 steps.
+N_ENVS = 8
 N_STEPS = 64
 BATCH_SIZE = 64
+TOTAL_TIMESTEPS = 32768
 
-TOTAL_TIMESTEPS = 16384
 
 MODEL_PATH = Path(
-    "models/ppo_threeway_incident_v3b_4env.zip"
+    "models/ppo_v3c2_random_surges.zip"
 )
 
 CHECKPOINT_DIR = Path(
-    "models/incident_threeway_ppo_4env_checkpoints"
+    "models/v3c2_incident_threeway_ppo_random_surges_checkpoints"
 )
 
 
@@ -60,9 +57,9 @@ def make_env(rank):
             scenario=scenario,
             control_interval=CONTROL_INTERVAL,
             max_time=MAX_TIME,
-            dynamic_surge_rooms=[SURGE_ROOM],
+            dynamic_surge_rooms=SURGE_ROOMS,
             dynamic_surge_times=[SURGE_TIME],
-            dynamic_surge_count=SURGE_COUNT,
+            dynamic_surge_counts=SURGE_COUNTS,
             incidents=INCIDENTS,
         )
 
@@ -114,8 +111,8 @@ def main():
             verbose=1,
             seed=SEED,
             device="cpu",
-            n_steps=256,
-            batch_size=64,
+            n_steps=N_STEPS,
+            batch_size=BATCH_SIZE,
         )
 
     # Callback is invoked once per vectorised step.
@@ -145,6 +142,8 @@ def main():
         model.learn(
             total_timesteps=TOTAL_TIMESTEPS,
             callback=checkpoint_callback,
+            reset_num_timesteps=False
+
         )
 
         model.save(MODEL_PATH)

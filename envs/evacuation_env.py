@@ -34,6 +34,7 @@ class EvacuationEnv(gym.Env):
         dynamic_surge_rooms=None,
         dynamic_surge_times=None,
         dynamic_surge_count=0,
+        dynamic_surge_counts=None,
         incidents=None,
         forced_incident=None,
     ):
@@ -58,7 +59,9 @@ class EvacuationEnv(gym.Env):
         self.dynamic_surge_rooms = dynamic_surge_rooms
         self.dynamic_surge_times = dynamic_surge_times
         self.dynamic_surge_count = dynamic_surge_count
-        self.incidents = incidents
+        self.dynamic_surge_counts = dynamic_surge_counts
+        self.current_surge_count = None
+        self.incidents = tuple(incidents) if incidents else ()
         self.forced_incident = forced_incident
 
         if (
@@ -137,7 +140,19 @@ class EvacuationEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-
+        if self.dynamic_surge_counts:
+            count_index = int(
+                self.np_random.integers(
+                    len(self.dynamic_surge_counts)
+                )
+            )
+            self.current_surge_count = (
+                self.dynamic_surge_counts[count_index]
+            )
+        else:
+            self.current_surge_count = (
+                self.dynamic_surge_count
+            )
         if self.population_scenarios:
             population_names = list(self.population_scenarios.keys())
             index = int(self.np_random.integers(len(population_names)))
@@ -177,13 +192,14 @@ class EvacuationEnv(gym.Env):
             self.scenario.dynamic_events = [{
                 "time": self.current_surge_time,
                 "room": self.current_surge_room,
-                "count": self.dynamic_surge_count,
+                "count": self.current_surge_count,
                 "incident": self.current_incident
             }]
         else:
             self.current_surge_room = None
             self.current_surge_time = None
             self.current_incident = None
+            self.current_surge_count = None
 
         state = self.backend.reset(seed=backend_seed)
 
@@ -269,7 +285,7 @@ class EvacuationEnv(gym.Env):
                 if region.covers(point):
                     congestion_counts[region_name] += 1
 
-        n = state.initial_population
+        n = 140
 
         observation = []
         observation.extend(room_counts[name] / n for name in self.room_names)
@@ -308,6 +324,7 @@ class EvacuationEnv(gym.Env):
             "population_name": self.current_population_name,
             "surge_room": self.current_surge_room,
             "surge_time": self.current_surge_time,
+            "surge_count": self.current_surge_count,
             "active_incident": state.active_incident,
             "geometry_switch_pending":
                 self.backend.geometry_switch_pending,

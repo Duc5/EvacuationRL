@@ -11,15 +11,13 @@ from stable_baselines3 import PPO
 from scenarios.building_v2 import BuildingV2Scenario
 from envs.evacuation_env import EvacuationEnv
 
-STEPSIZE = 16384
+STEPSIZE = 131072
 MODEL_PATH = Path(
-    f"models/incident_threeway_ppo_4env_checkpoints/ppo_incident_4env_{STEPSIZE}_steps.zip"
-    # "models/ppo_incident_v1.zip"
-    # "models/incident_ppo_checkpoints/ppo_incident_26624_steps.zip"
+    "models/ppo_v3c2_random_surges.zip"
 )
 
 OUTPUT_PATH = Path(
-    f"results/incident_threeway_ppo_4env_eval_{STEPSIZE}_steps_seeds5-14.csv"
+    f"results/ppo_v3c2_random_surges_{STEPSIZE}_steps_seeds5-14.csv"
 )
 
 INITIAL_COUNTS = {
@@ -29,19 +27,19 @@ INITIAL_COUNTS = {
     "D": 20,
 }
 
-SURGE_ROOM = "C"
+SURGE_ROOMS = ["A", "B", "C", "D"]
+SURGE_COUNTS = [20, 30, 40]
 SURGE_TIME = 10.0
-SURGE_COUNT = 40
 
 INCIDENTS = ["C_exit","B_route_08","bottom_loop_left"]
 
 
-SEEDS = range(5, 14)
+SEEDS = range(8, 10)
 
 CONTROL_INTERVAL = 10.0
 MAX_TIME = 180.0
 
-ROBUST_FIXED_POLICY = "CJ3A"
+ROBUST_FIXED_POLICY = "ACA"
 EVENT_BLIND_POST_POLICY = "AJ1B"
 
 INCIDENT_AWARE_POST_POLICIES = {
@@ -57,7 +55,7 @@ def short_policy(policy):
     )
 
 
-def make_env(incident):
+def make_env(incident, surge_room, surge_count):
     scenario = BuildingV2Scenario(
         room_counts=dict(INITIAL_COUNTS)
     )
@@ -66,16 +64,16 @@ def make_env(incident):
         scenario=scenario,
         control_interval=CONTROL_INTERVAL,
         max_time=MAX_TIME,
-        dynamic_surge_rooms=[SURGE_ROOM],
+        dynamic_surge_rooms=[surge_room],
         dynamic_surge_times=[SURGE_TIME],
-        dynamic_surge_count=SURGE_COUNT,
+        dynamic_surge_counts=[surge_count],
         incidents=INCIDENTS,
-        forced_incident=incident
+        forced_incident=incident,
     )
 
 
 def get_policy_mapping():
-    env = make_env("C_exit")
+    env = make_env("C_exit","A",20)
 
     labels = [
         short_policy(policy)
@@ -93,12 +91,14 @@ def get_policy_mapping():
 def run_episode(
     controller,
     incident,
+    surge_room,
+    surge_count,
     seed,
     model,
     action_map,
     labels,
 ):
-    env = make_env(incident)
+    env = make_env(incident,surge_room,surge_count)
 
     try:
         obs, info = env.reset(seed=seed)
@@ -184,6 +184,9 @@ def run_episode(
             "controller": controller,
             "seed": seed,
             "incident": incident,
+            "incident": incident,
+            "surge_room": surge_room,
+            "surge_count": surge_count,
             "elapsed_time": info["elapsed_time"],
             "episode_reward": episode_reward,
             "remaining_agents": info["remaining_agents"],
@@ -198,6 +201,9 @@ def run_episode(
             "controller": controller,
             "seed": seed,
             "incident": incident,
+            "incident": incident,
+            "surge_room": surge_room,
+            "surge_count": surge_count,
             "elapsed_time": MAX_TIME,
             "episode_reward": 0.0,
             "remaining_agents": -1,
@@ -245,8 +251,8 @@ def main():
     controllers = [
         "ppo",
         "fixed",
-        "event_blind",
-        "oracle",
+        # "event_blind",
+        # "oracle",
     ]
 
     rows = []
@@ -255,42 +261,46 @@ def main():
         len(controllers)
         * len(SEEDS)
         * len(INCIDENTS)
+        * len(SURGE_ROOMS)
+        * len(SURGE_COUNTS)
     )
 
     completed = 0
-
     for seed in SEEDS:
         for incident in INCIDENTS:
-            for controller in controllers:
-                row = run_episode(
-                    controller=controller,
-                    incident=incident,
-                    seed=seed,
-                    model=model,
-                    action_map=action_map,
-                    labels=labels,
-                )
+            for surge_room in SURGE_ROOMS:
+                for surge_count in SURGE_COUNTS:
+                    for controller in controllers:
+                        row = run_episode(
+                            controller=controller,
+                            incident=incident,
+                            surge_room=surge_room,
+                            surge_count=surge_count,
+                            seed=seed,
+                            model=model,
+                            action_map=action_map,
+                            labels=labels,
+                        )
+                        rows.append(row)
+                        completed += 1
 
-                rows.append(row)
-                completed += 1
+                        print(
+                            f"[{completed:03}/{total_runs}] "
+                            f"seed={seed:2} | "
+                            f"{incident:<11} | "
+                            f"{controller:<11} | "
+                            f"time={row['elapsed_time']:6.2f} | "
+                            f"reward={row['episode_reward']:7.4f} | "
+                            f"{row['first_action']} -> "
+                            f"{row['first_post_action']}"
+                        )
+                        if controller == "ppo":
+                            print("   TRACE:", row["action_trace"])
 
-                print(
-                    f"[{completed:03}/{total_runs}] "
-                    f"seed={seed:2} | "
-                    f"{incident:<11} | "
-                    f"{controller:<11} | "
-                    f"time={row['elapsed_time']:6.2f} | "
-                    f"reward={row['episode_reward']:7.4f} | "
-                    f"{row['first_action']} -> "
-                    f"{row['first_post_action']}"
-                )
-                if controller == "ppo":
-                    print("   TRACE:", row["action_trace"])
-
-                if row["error"]:
-                    print(
-                        f"    ERROR: {row['error']}"
-                    )
+                        if row["error"]:
+                            print(
+                                f"    ERROR: {row['error']}"
+                            )
 
     # ------------------------------------------------------
     # Save raw results
@@ -321,7 +331,7 @@ def main():
 
     print("\n===== COMPLETENESS =====")
 
-    expected = len(SEEDS) * len(INCIDENTS)
+    expected = len(SEEDS) * len(INCIDENTS) *len(SURGE_ROOMS)*len(SURGE_COUNTS)
 
     for controller in controllers:
         controller_rows = [
@@ -460,61 +470,73 @@ def main():
     # Headroom captured
     # ------------------------------------------------------
 
+    # fixed_time = summaries["fixed"]["mean_time"]
+    # ppo_time = summaries["ppo"]["mean_time"]
+    # oracle_time = summaries["oracle"]["mean_time"]
+    # blind_time = summaries["event_blind"]["mean_time"]
+
+    # ppo_gain = fixed_time - ppo_time
+    # ppo_gain_pct = 100 * ppo_gain / fixed_time
+
+    # available_headroom = fixed_time - oracle_time
+
+    # if available_headroom > 0:
+    #     captured = (
+    #         100 * ppo_gain / available_headroom
+    #     )
+    # else:
+    #     captured = float("nan")
+
+    # print("\n===== PPO ADAPTIVE PERFORMANCE =====")
+
+    # print(
+    #     f"Robust fixed CJ3A: "
+    #     f"{fixed_time:.2f}s"
+    # )
+
+    # print(
+    #     f"Event-blind CCA->{EVENT_BLIND_POST_POLICY}: "
+    #     f"{blind_time:.2f}s"
+    # )
+
+    # print(
+    #     f"PPO: "
+    #     f"{ppo_time:.2f}s"
+    # )
+
+    # print(
+    #     f"CCA-first one switch benchmark: "
+    #     f"{oracle_time:.2f}s"
+    # )
+
+    # print(
+    #     f"\nPPO gain vs robust fixed: "
+    #     f"{ppo_gain:.2f}s "
+    #     f"({ppo_gain_pct:.1f}%)"
+    # )
+
+    # print(
+    #     f"Available adaptive headroom: "
+    #     f"{available_headroom:.2f}s"
+    # )
+
+    # print(
+    #     f"Headroom captured by PPO: "
+    #     f"{captured:.1f}%"
+    # )
     fixed_time = summaries["fixed"]["mean_time"]
     ppo_time = summaries["ppo"]["mean_time"]
-    oracle_time = summaries["oracle"]["mean_time"]
-    blind_time = summaries["event_blind"]["mean_time"]
 
     ppo_gain = fixed_time - ppo_time
     ppo_gain_pct = 100 * ppo_gain / fixed_time
 
-    available_headroom = fixed_time - oracle_time
-
-    if available_headroom > 0:
-        captured = (
-            100 * ppo_gain / available_headroom
-        )
-    else:
-        captured = float("nan")
-
     print("\n===== PPO ADAPTIVE PERFORMANCE =====")
-
+    print(f"Robust fixed ACA: {fixed_time:.2f}s")
+    print(f"PPO:              {ppo_time:.2f}s")
     print(
-        f"Robust fixed CJ3A: "
-        f"{fixed_time:.2f}s"
+        f"PPO gain vs robust fixed: "
+        f"{ppo_gain:.2f}s ({ppo_gain_pct:.1f}%)"
     )
-
-    print(
-        f"Event-blind CCA->{EVENT_BLIND_POST_POLICY}: "
-        f"{blind_time:.2f}s"
-    )
-
-    print(
-        f"PPO: "
-        f"{ppo_time:.2f}s"
-    )
-
-    print(
-        f"Incident-aware oracle: "
-        f"{oracle_time:.2f}s"
-    )
-
-    print(
-        f"\nPPO gain vs robust fixed: "
-        f"{ppo_gain:.2f}s "
-        f"({ppo_gain_pct:.1f}%)"
-    )
-
-    print(
-        f"Available adaptive headroom: "
-        f"{available_headroom:.2f}s"
-    )
-
-    print(
-        f"Headroom captured by PPO: "
-        f"{captured:.1f}%"
-    )
-
 
 if __name__ == "__main__":
     main()
