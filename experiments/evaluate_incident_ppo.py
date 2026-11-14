@@ -17,7 +17,7 @@ MODEL_PATH = Path(
 )
 
 OUTPUT_PATH = Path(
-    f"results/ppo_v3c2_random_surges_{STEPSIZE}_steps_seeds5-14.csv"
+    f"results/ppo_v3c2_random_surges_{STEPSIZE}_steps_seeds8-9.csv"
 )
 
 INITIAL_COUNTS = {

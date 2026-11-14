@@ -1,0 +1,106 @@
+{
+  "description": "Matched pretrained PPO vs fixed ACA evacuation runs (selected illustrative scenario)",
+  "seed": 8,
+  "incident": "C_exit",
+  "initial_counts": {
+    "A": 40,
+    "B": 20,
+    "C": 20,
+    "D": 20
+  },
+  "surge": {
+    "room": "C",
+    "count": 40,
+    "time": 10.0
+  },
+  "control_interval": 10.0,
+  "model": "models/ppo_v3c2_random_surges.zip",
+  "runs": {
+    "ppo": {
+      "trajectory": "trajectories/demo_exit_c_ppo.sqlite",
+      "elapsed_time": 66.25,
+      "remaining_agents": 0,
+      "episode_reward": -0.524008,
+      "actions": [
+        {
+          "time": 0.0,
+          "policy": "CCA"
+        },
+        {
+          "time": 10.0,
+          "policy": "AJ3B"
+        },
+        {
+          "time": 20.0,
+          "policy": "AJ3B"
+        },
+        {
+          "time": 30.0,
+          "policy": "AJ3B"
+        },
+        {
+          "time": 40.0,
+          "policy": "AJ3B"
+        },
+        {
+          "time": 50.0,
+          "policy": "AJ3B"
+        },
+        {
+          "time": 60.0,
+          "policy": "AJ3B"
+        }
+      ],
+      "geometry_switch_delay": 0.0
+    },
+    "fixed": {
+      "trajectory": "trajectories/demo_exit_c_fixed.sqlite",
+      "elapsed_time": 97.65,
+      "remaining_agents": 0,
+      "episode_reward": -0.738929,
+      "actions": [
+        {
+          "time": 0.0,
+          "policy": "ACA"
+        },
+        {
+          "time": 10.0,
+          "policy": "ACA"
+        },
+        {
+          "time": 20.0,
+          "policy": "ACA"
+        },
+        {
+          "time": 30.0,
+          "policy": "ACA"
+        },
+        {
+          "time": 40.0,
+          "policy": "ACA"
+        },
+        {
+          "time": 50.0,
+          "policy": "ACA"
+        },
+        {
+          "time": 60.0,
+          "policy": "ACA"
+        },
+        {
+          "time": 70.0,
+          "policy": "ACA"
+        },
+        {
+          "time": 80.0,
+          "policy": "ACA"
+        },
+        {
+          "time": 90.0,
+          "policy": "ACA"
+        }
+      ],
+      "geometry_switch_delay": 0.0
+    }
+  }
+}

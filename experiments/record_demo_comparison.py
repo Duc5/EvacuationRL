@@ -48,7 +48,7 @@ def run_controller(controller, trajectory_path, model=None):
         dynamic_surge_rooms=[SURGE_ROOM],
         dynamic_surge_times=[SURGE_TIME],
         dynamic_surge_counts=[SURGE_COUNT],
-        incidents=[INCIDENT],
+        incidents=["C_exit", "B_route_08", "bottom_loop_left"],
         forced_incident=INCIDENT,
     )
 
