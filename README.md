@@ -16,8 +16,6 @@ In the final version, PPO reduced average simulated evacuation time by **17.8%**
 This result came from **72 scenario and seed combinations**, evaluated with both controllers. The tested setup starts with 100 pedestrians and adds a surge of 20, 30, or 40 people at 10 simulated seconds.
 ## How it works
 
-![Schematic of the EvacRL building] (scenarios/buildingDiagram.jpeg)
-
 The simulated building contains **four rooms (A–D)**, **three exits (A–C)** of differing widths, and **three controllable junctions (J1–J3)**. Pedestrians move physically through the geometry in JuPedSim. The RL agent changes the destinations displayed on junction signs, which pedestrians follow when they enter a junction.
 
 Each control step represents **10 seconds of simulated time**:
